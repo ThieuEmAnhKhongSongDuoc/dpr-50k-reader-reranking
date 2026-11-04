@@ -21,10 +21,17 @@ def verify(path, asset):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--group", choices=["main", "single", "all"], default="main")
+    parser.add_argument("--asset", nargs="+", help="Download named files only, overriding --group")
     parser.add_argument("--output", type=Path, default=ROOT / "artifacts")
     args = parser.parse_args()
     manifest = json.loads((ROOT / "weights/manifest.json").read_text(encoding="utf-8"))
-    selected = [a for a in manifest["assets"] if args.group == "all" or a["group"] == args.group]
+    if args.asset:
+        unknown = set(args.asset) - {a["name"] for a in manifest["assets"]}
+        if unknown:
+            parser.error("Unknown artifact name(s): " + ", ".join(sorted(unknown)))
+        selected = [a for a in manifest["assets"] if a["name"] in args.asset]
+    else:
+        selected = [a for a in manifest["assets"] if args.group == "all" or a["group"] == args.group]
     args.output.mkdir(parents=True, exist_ok=True)
     print("Selected bytes:", sum(a["bytes"] for a in selected), flush=True)
     for asset in selected:

@@ -18,6 +18,9 @@ The main group is about 2.38 GB: Multi and Reader weights, matching Multi
 passage vectors, fixed 50k corpus and five full QA test files.
 The optional single group adds NQ-Single weights and matching passage vectors.
 No full Wikipedia download is necessary to use the released 50k sample.
+For a small download containing only the full QA tests:
+
+    python scripts/download_artifacts.py --asset qa-tests.zip
 
 ## Kaggle inference
 
