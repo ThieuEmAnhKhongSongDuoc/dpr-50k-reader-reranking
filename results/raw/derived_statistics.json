@@ -1,0 +1,51 @@
+{
+  "focused_test_questions": 15617,
+  "focused_covered_questions": 10642,
+  "datasets": {
+    "nq": {
+      "questions": 3610,
+      "covered": 2192,
+      "coverage": 0.607202216066482,
+      "delta_pp": {
+        "1": 0.9141274238227147,
+        "5": 0.9695290858725761,
+        "20": 1.6620498614958448,
+        "100": 1.8282548476454294
+      },
+      "conditional_reader_top20": 0.45027372262773724,
+      "conditional_reader_top100": 0.6450729927007299
+    },
+    "curatedtrec": {
+      "questions": 694,
+      "covered": 217,
+      "coverage": 0.3126801152737752,
+      "delta_pp": {
+        "1": 4.322766570605188,
+        "5": 2.3054755043227666,
+        "20": 1.7291066282420748,
+        "100": 0.0
+      },
+      "conditional_reader_top20": 0.5944700460829493,
+      "conditional_reader_top100": 0.7695852534562212
+    },
+    "trivia": {
+      "questions": 11313,
+      "covered": 8233,
+      "coverage": 0.7277468399186776,
+      "delta_pp": {
+        "1": 8.644921771413419,
+        "5": 10.545390258994077,
+        "20": 9.042694245558208,
+        "100": 3.526915937417131
+      },
+      "conditional_reader_top20": 0.585934653224827,
+      "conditional_reader_top100": 0.7086116846835905
+    }
+  },
+  "reader_pairs": 3123400,
+  "sum_loop_seconds": 38388.25,
+  "weighted_top20_before": 0.31023884228725107,
+  "weighted_top20_after": 0.3803547416277134,
+  "macro_top20_before": 0.25378658322744746,
+  "macro_top20_after": 0.2952327523451012
+}

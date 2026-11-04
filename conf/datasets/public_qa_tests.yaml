@@ -1,0 +1,21 @@
+# @package _group_
+
+nq_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: artifacts/qa/nq-test.csv
+
+trivia_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: artifacts/qa/trivia-test.csv
+
+webq_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: artifacts/qa/webq-test.csv
+
+curatedtrec_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: artifacts/qa/curatedtrec-test.csv
+
+squad1_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: artifacts/qa/squad1-test.csv

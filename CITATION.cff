@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: "DPR 50K: Group 5 reproduction and Reader reranking"
+message: "Cite the original DPR paper and acknowledge this experimental artifact when reusing its results."
+type: software
+version: 1.0.0
+date-released: 2026-11-04
+url: "https://github.com/ThieuEmAnhKhongSongDuoc/dpr-50k-reader-reranking"
+authors:
+  - family-names: "Hồ"
+    given-names: "Thành Tài"
+  - family-names: "Lê"
+    given-names: "Trần Bình An"
+  - family-names: "Phan"
+    given-names: "Ba Song Toàn"
+  - family-names: "Tran"
+    given-names: "Quang Long"
+  - family-names: "Trịnh"
+    given-names: "Minh Bảo Trân"

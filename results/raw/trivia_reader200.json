@@ -1,0 +1,27 @@
+{
+  "method": "DPR Multi + FAISS IndexFlatIP top-k + official DPR Reader relevance-head reranking",
+  "corpus_size": 50000,
+  "faiss_type": "IndexFlatIP",
+  "reader_top_candidates": 200,
+  "reader_batch_size": 16,
+  "reader_gpus": 2,
+  "test_results": {
+    "trivia_test": {
+      "questions": 11313,
+      "candidate_k": 200,
+      "hits": {
+        "1": 2088,
+        "5": 3543,
+        "20": 4824,
+        "100": 5834
+      },
+      "top_k_accuracy": {
+        "1": 0.18456642800318218,
+        "5": 0.31317952797666404,
+        "20": 0.42641209228321403,
+        "100": 0.5156899142579333
+      },
+      "reranking_seconds": 28197.25
+    }
+  }
+}

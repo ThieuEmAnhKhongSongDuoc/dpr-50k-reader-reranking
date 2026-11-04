@@ -1,0 +1,129 @@
+[{"stream_name":"stderr","time":12.917059618,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":12.917129757,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":12.917137426,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":12.917141574,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":13.734708419,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":13.734748839,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":13.734753084,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":13.73475569,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":15.378830033,"data":"Kaggle input roots: ['datasets']\n"}
+,{"stream_name":"stdout","time":18.433512794,"data":"Using input: /kaggle/input/datasets/hothanhtai/dpr-50k-rerank-inputs\n"}
+,{"stream_name":"stderr","time":40.234713121,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":40.234739692,"data":"gradio 6.26.0 requires huggingface-hub\u003c2.0,\u003e=1.16.0, but you have huggingface-hub 0.36.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.234745561,"data":"gradio 6.26.0 requires pillow\u003c13.0,\u003e=8.0, but you have pillow 13.0.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.23475033,"data":"diffusers 0.40.0 requires huggingface-hub\u003c2.0,\u003e=1.23.0, but you have huggingface-hub 0.36.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.437636977,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":40.437669649,"data":"gradio 6.26.0 requires huggingface-hub\u003c2.0,\u003e=1.16.0, but you have huggingface-hub 0.36.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.437675101,"data":"gradio 6.26.0 requires pillow\u003c13.0,\u003e=8.0, but you have pillow 13.0.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.437679211,"data":"diffusers 0.40.0 requires huggingface-hub\u003c2.0,\u003e=1.23.0, but you have huggingface-hub 0.36.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.43768339,"data":"\n"}
+,{"stream_name":"stderr","time":40.437687125,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":40.437691374,"data":"gradio 6.26.0 requires huggingface-hub\u003c2.0,\u003e=1.16.0, but you have huggingface-hub 0.36.2 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.437695441,"data":"gradio 6.26.0 requires pillow\u003c13.0,\u003e=8.0, but you have pillow 13.0.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.437699679,"data":"diffusers 0.40.0 requires huggingface-hub\u003c2.0,\u003e=1.23.0, but you have huggingface-hub 0.36.2 which is incompatible.\n"}
+,{"stream_name":"stdout","time":67.881460183,"data":"Python: 3.13.15 (main, Aug  6 2026, 11:06:22) [GCC 13.3.0]\n"}
+,{"stream_name":"stdout","time":67.881504953,"data":"PyTorch: 2.11.0+cu128\n"}
+,{"stream_name":"stdout","time":67.881523843,"data":"Transformers: 4.57.3\n"}
+,{"stream_name":"stdout","time":67.881528497,"data":"FAISS: 1.15.1\n"}
+,{"stream_name":"stdout","time":67.881532102,"data":"GPU count: 2\n"}
+,{"stream_name":"stdout","time":67.881535713,"data":"0 Tesla T4\n"}
+,{"stream_name":"stdout","time":67.881539322,"data":"1 Tesla T4\n"}
+,{"stream_name":"stdout","time":72.659499834,"data":"Working project: /kaggle/working/dpr-project | tokenizer compatibility substitutions: 2\n"}
+,{"stream_name":"stderr","time":75.750533941,"data":"/usr/local/lib/python3.13/dist-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'dense_retriever': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information\n"}
+,{"stream_name":"stderr","time":75.75056339,"data":"  warnings.warn(msg, UserWarning)\n"}
+,{"stream_name":"stderr","time":75.757535777,"data":"/usr/local/lib/python3.13/dist-packages/hydra/core/default_element.py:124: UserWarning: In 'encoder/hf_bert': Usage of deprecated keyword in package header '# @package _group_'.\n"}
+,{"stream_name":"stderr","time":75.757576953,"data":"See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/changes_to_package_header for more information\n"}
+,{"stream_name":"stderr","time":75.757582787,"data":"  deprecation_warning(\n"}
+,{"stream_name":"stderr","time":75.827922883,"data":"/usr/local/lib/python3.13/dist-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'extractive_reader_train_cfg': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information\n"}
+,{"stream_name":"stderr","time":75.827942451,"data":"  warnings.warn(msg, UserWarning)\n"}
+,{"stream_name":"stderr","time":75.830523387,"data":"/usr/local/lib/python3.13/dist-packages/hydra/core/default_element.py:124: UserWarning: In 'train/extractive_reader_default': Usage of deprecated keyword in package header '# @package _group_'.\n"}
+,{"stream_name":"stderr","time":75.830537385,"data":"See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/changes_to_package_header for more information\n"}
+,{"stream_name":"stderr","time":75.830541263,"data":"  deprecation_warning(\n"}
+,{"stream_name":"stderr","time":75.952779126,"data":"/usr/local/lib/python3.13/dist-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'dense_retriever': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information\n"}
+,{"stream_name":"stderr","time":75.952817113,"data":"  warnings.warn(msg, UserWarning)\n"}
+,{"stream_name":"stderr","time":75.952824697,"data":"/usr/local/lib/python3.13/dist-packages/hydra/core/default_element.py:124: UserWarning: In 'encoder/hf_bert': Usage of deprecated keyword in package header '# @package _group_'.\n"}
+,{"stream_name":"stderr","time":75.952829455,"data":"See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/changes_to_package_header for more information\n"}
+,{"stream_name":"stderr","time":75.952833545,"data":"  deprecation_warning(\n"}
+,{"stream_name":"stderr","time":75.952837526,"data":"/usr/local/lib/python3.13/dist-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'extractive_reader_train_cfg': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information\n"}
+,{"stream_name":"stderr","time":75.952842545,"data":"  warnings.warn(msg, UserWarning)\n"}
+,{"stream_name":"stderr","time":75.952845972,"data":"/usr/local/lib/python3.13/dist-packages/hydra/core/default_element.py:124: UserWarning: In 'train/extractive_reader_default': Usage of deprecated keyword in package header '# @package _group_'.\n"}
+,{"stream_name":"stderr","time":75.952858478,"data":"See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/changes_to_package_header for more information\n"}
+,{"stream_name":"stderr","time":75.952862062,"data":"  deprecation_warning(\n"}
+,{"stream_name":"stderr","time":75.95286534,"data":"\n"}
+,{"stream_name":"stderr","time":75.952872445,"data":"/usr/local/lib/python3.13/dist-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'dense_retriever': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information\n"}
+,{"stream_name":"stderr","time":75.952875342,"data":"  warnings.warn(msg, UserWarning)\n"}
+,{"stream_name":"stderr","time":75.952877646,"data":"/usr/local/lib/python3.13/dist-packages/hydra/core/default_element.py:124: UserWarning: In 'encoder/hf_bert': Usage of deprecated keyword in package header '# @package _group_'.\n"}
+,{"stream_name":"stderr","time":75.952880111,"data":"See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/changes_to_package_header for more information\n"}
+,{"stream_name":"stderr","time":75.952882443,"data":"  deprecation_warning(\n"}
+,{"stream_name":"stderr","time":75.952884651,"data":"/usr/local/lib/python3.13/dist-packages/hydra/_internal/defaults_list.py:251: UserWarning: In 'extractive_reader_train_cfg': Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information\n"}
+,{"stream_name":"stderr","time":75.952888566,"data":"  warnings.warn(msg, UserWarning)\n"}
+,{"stream_name":"stderr","time":75.952890834,"data":"/usr/local/lib/python3.13/dist-packages/hydra/core/default_element.py:124: UserWarning: In 'train/extractive_reader_default': Usage of deprecated keyword in package header '# @package _group_'.\n"}
+,{"stream_name":"stderr","time":75.952893322,"data":"See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/changes_to_package_header for more information\n"}
+,{"stream_name":"stderr","time":75.952895695,"data":"  deprecation_warning(\n"}
+,{"stream_name":"stderr","time":123.544229784,"data":"2026-10-30 12:46:04,200 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stderr","time":123.747594589,"data":"2026-10-30 12:46:04,200 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stderr","time":123.747619306,"data":"\n"}
+,{"stream_name":"stderr","time":123.74762545,"data":"2026-10-30 12:46:04,200 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stderr","time":126.095135143,"data":"2026-10-30 12:46:06,752 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stderr","time":126.297455717,"data":"2026-10-30 12:46:06,752 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stderr","time":126.297486317,"data":"\n"}
+,{"stream_name":"stderr","time":126.297492775,"data":"2026-10-30 12:46:06,752 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stderr","time":129.344402426,"data":"2026-10-30 12:46:10,001 [INFO] root: Reading saved model from /kaggle/input/datasets/hothanhtai/dpr-50k-rerank-inputs/reader.cp\n"}
+,{"stream_name":"stderr","time":129.54665237,"data":"2026-10-30 12:46:10,001 [INFO] root: Reading saved model from /kaggle/input/datasets/hothanhtai/dpr-50k-rerank-inputs/reader.cp\n"}
+,{"stream_name":"stderr","time":129.546701577,"data":"\n"}
+,{"stream_name":"stderr","time":129.546708794,"data":"2026-10-30 12:46:10,001 [INFO] root: Reading saved model from /kaggle/input/datasets/hothanhtai/dpr-50k-rerank-inputs/reader.cp\n"}
+,{"stream_name":"stderr","time":150.796483117,"data":"2026-10-30 12:46:31,453 [INFO] root: model_state_dict keys odict_keys(['model_dict', 'optimizer_dict', 'scheduler_dict', 'offset', 'epoch', 'encoder_params'])\n"}
+,{"stream_name":"stderr","time":150.797146822,"data":"2026-10-30 12:46:31,453 [INFO] root: CFG's local_rank=-1\n"}
+,{"stream_name":"stderr","time":150.797578832,"data":"2026-10-30 12:46:31,454 [INFO] root: Env WORLD_SIZE=None\n"}
+,{"stream_name":"stderr","time":150.798108749,"data":"2026-10-30 12:46:31,455 [INFO] root: Initialized host 15f721bc0e2a as d.rank -1 on device=cuda, n_gpu=2, world size=1\n"}
+,{"stream_name":"stderr","time":150.798172918,"data":"2026-10-30 12:46:31,455 [INFO] root: 16-bits training: False \n"}
+,{"stream_name":"stderr","time":150.798567038,"data":"2026-10-30 12:46:31,455 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stderr","time":150.99882826,"data":"2026-10-30 12:46:31,453 [INFO] root: model_state_dict keys odict_keys(['model_dict', 'optimizer_dict', 'scheduler_dict', 'offset', 'epoch', 'encoder_params'])\n"}
+,{"stream_name":"stderr","time":150.998869636,"data":"2026-10-30 12:46:31,453 [INFO] root: CFG's local_rank=-1\n"}
+,{"stream_name":"stderr","time":150.998875362,"data":"2026-10-30 12:46:31,454 [INFO] root: Env WORLD_SIZE=None\n"}
+,{"stream_name":"stderr","time":150.998879922,"data":"2026-10-30 12:46:31,455 [INFO] root: Initialized host 15f721bc0e2a as d.rank -1 on device=cuda, n_gpu=2, world size=1\n"}
+,{"stream_name":"stderr","time":150.99888382,"data":"2026-10-30 12:46:31,455 [INFO] root: 16-bits training: False \n"}
+,{"stream_name":"stderr","time":150.998888433,"data":"2026-10-30 12:46:31,455 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stderr","time":150.99889213,"data":"\n"}
+,{"stream_name":"stderr","time":150.998896035,"data":"2026-10-30 12:46:31,453 [INFO] root: model_state_dict keys odict_keys(['model_dict', 'optimizer_dict', 'scheduler_dict', 'offset', 'epoch', 'encoder_params'])\n"}
+,{"stream_name":"stderr","time":150.998899795,"data":"2026-10-30 12:46:31,453 [INFO] root: CFG's local_rank=-1\n"}
+,{"stream_name":"stderr","time":150.99890286,"data":"2026-10-30 12:46:31,454 [INFO] root: Env WORLD_SIZE=None\n"}
+,{"stream_name":"stderr","time":150.998906527,"data":"2026-10-30 12:46:31,455 [INFO] root: Initialized host 15f721bc0e2a as d.rank -1 on device=cuda, n_gpu=2, world size=1\n"}
+,{"stream_name":"stderr","time":150.99890973,"data":"2026-10-30 12:46:31,455 [INFO] root: 16-bits training: False \n"}
+,{"stream_name":"stderr","time":150.998913033,"data":"2026-10-30 12:46:31,455 [INFO] dpr.models.hf_models: Initializing HF BERT Encoder. cfg_name=bert-base-uncased\n"}
+,{"stream_name":"stdout","time":151.638745708,"data":"DPR Reader DataParallel enabled on 2 GPUs\n"}
+,{"stream_name":"stdout","time":151.840480609,"data":"DPR Reader DataParallel enabled on 2 GPUs\n"}
+,{"stream_name":"stderr","time":162.456170535,"data":"2026-10-30 12:46:43,112 [INFO] root: data indexed 50000\n"}
+,{"stream_name":"stderr","time":162.456242146,"data":"2026-10-30 12:46:43,113 [INFO] root: Total data indexed 50000\n"}
+,{"stream_name":"stderr","time":162.65951944,"data":"2026-10-30 12:46:43,112 [INFO] root: data indexed 50000\n"}
+,{"stream_name":"stderr","time":162.659569102,"data":"2026-10-30 12:46:43,113 [INFO] root: Total data indexed 50000\n"}
+,{"stream_name":"stderr","time":162.659576339,"data":"\n"}
+,{"stream_name":"stderr","time":162.659580759,"data":"2026-10-30 12:46:43,112 [INFO] root: data indexed 50000\n"}
+,{"stream_name":"stderr","time":162.659585162,"data":"2026-10-30 12:46:43,113 [INFO] root: Total data indexed 50000\n"}
+,{"stream_name":"stdout","time":844.362023814,"data":"nq_test: reranked 500/3610\n"}
+,{"stream_name":"stdout","time":844.56746361,"data":"nq_test: reranked 500/3610\n"}
+,{"stream_name":"stdout","time":1473.680469567,"data":"nq_test: reranked 1000/3610\n"}
+,{"stream_name":"stdout","time":1473.887773854,"data":"nq_test: reranked 1000/3610\n"}
+,{"stream_name":"stdout","time":2092.983364543,"data":"nq_test: reranked 1500/3610\n"}
+,{"stream_name":"stdout","time":2093.18873406,"data":"nq_test: reranked 1500/3610\n"}
+,{"stream_name":"stdout","time":2714.353963852,"data":"nq_test: reranked 2000/3610\n"}
+,{"stream_name":"stdout","time":2714.55779083,"data":"nq_test: reranked 2000/3610\n"}
+,{"stream_name":"stdout","time":3332.224188758,"data":"nq_test: reranked 2500/3610\n"}
+,{"stream_name":"stdout","time":3332.429168207,"data":"nq_test: reranked 2500/3610\n"}
+,{"stream_name":"stdout","time":3950.928301768,"data":"nq_test: reranked 3000/3610\n"}
+,{"stream_name":"stdout","time":3951.132096401,"data":"nq_test: reranked 3000/3610\n"}
+,{"stream_name":"stdout","time":4568.983796688,"data":"nq_test: reranked 3500/3610\n"}
+,{"stream_name":"stdout","time":4569.188684699,"data":"nq_test: reranked 3500/3610\n"}
+,{"stream_name":"stdout","time":4704.916808086,"data":"nq_test: {'questions': 3610, 'candidate_k': 100, 'hits': {1: 247, 5: 584, 20: 999, 100: 1348}, 'top_k_accuracy': {'1': 0.06842105263157895, '5': 0.16177285318559556, '20': 0.27673130193905815, '100': 0.3734072022160665}, 'reranking_seconds': 4488.34}\n"}
+,{"stream_name":"stdout","time":4704.916854315,"data":"Saved /kaggle/working/reranked_nq.json\n"}
+,{"stream_name":"stdout","time":4705.120766481,"data":"nq_test: {'questions': 3610, 'candidate_k': 100, 'hits': {1: 247, 5: 584, 20: 999, 100: 1348}, 'top_k_accuracy': {'1': 0.06842105263157895, '5': 0.16177285318559556, '20': 0.27673130193905815, '100': 0.3734072022160665}, 'reranking_seconds': 4488.34}\n"}
+,{"stream_name":"stdout","time":4705.120828464,"data":"Saved /kaggle/working/reranked_nq.json\n"}
+,{"stream_name":"stderr","time":4716.734496317,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":4716.734538127,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":4716.965931127,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":4716.965963039,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":4717.834047603,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":4717.909655408,"data":"[NbConvertApp] Writing 11089 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":4720.311937646,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":4720.835184998,"data":"[NbConvertApp] Writing 291618 bytes to __results__.html\n"}
+]

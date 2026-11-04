@@ -1,0 +1,17 @@
+# @package _group_
+
+nq_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/random_test_3000_seed67890/nq-test-random.tsv
+trivia_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/random_test_3000_seed67890/trivia-test-random.tsv
+webq_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/random_test_3000_seed67890/webq-test-random.tsv
+curatedtrec_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/random_test_3000_seed67890/curatedtrec-test-random.tsv
+squad1_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/random_test_3000_seed67890/squad1-test-random.tsv

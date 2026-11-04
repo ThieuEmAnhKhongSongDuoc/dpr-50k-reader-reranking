@@ -1,0 +1,22 @@
+# 0.25% deterministic samples of the official DPR retrieval test datasets.
+# @package _group_
+
+nq_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/paper_samples_025pct/nq-test-0p25.tsv
+
+trivia_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/paper_samples_025pct/trivia-test-0p25.tsv
+
+webq_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/paper_samples_025pct/webq-test-0p25.tsv
+
+curatedtrec_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/paper_samples_025pct/curatedtrec-test-0p25.tsv
+
+squad1_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/processed/paper_samples_025pct/squad1-test-0p25.tsv

@@ -1,0 +1,58 @@
+{
+  "repository": "ThieuEmAnhKhongSongDuoc/dpr-50k-reader-reranking",
+  "tag": "artifacts-v1",
+  "upstream_reference_commit": "a31212dc0a54dfa85d8bfa01e1669f149ac832b7",
+  "corpus_seed": 12345,
+  "corpus_count": 50000,
+  "assets": [
+    {
+      "name": "retriever.cp",
+      "group": "main",
+      "bytes": 875965155,
+      "sha256": "353eb0791d75026da2f18fc96771b47ae2ac676d7f0f5f6c0a833b394859bbb9",
+      "source": "checkpoint.retriever.multiset.bert-base-encoder"
+    },
+    {
+      "name": "reader.cp",
+      "group": "main",
+      "bytes": 1313930543,
+      "sha256": "2fbbdbdbe1d8441c1639c2c786919820e882eebc0f0660e1c396127efaf15ce7",
+      "source": "checkpoint.reader.nq-trivia-hybrid.hf-bert-base"
+    },
+    {
+      "name": "passage_vectors.pkl",
+      "group": "main",
+      "bytes": 156195432,
+      "sha256": "b8df762c7387692fedbeb9b191666e3096b6bf76e396daa3567f18317f98c868",
+      "source": "Group 5: official Multi encoder, fixed 50k"
+    },
+    {
+      "name": "wiki50k.tsv",
+      "group": "main",
+      "bytes": 32379143,
+      "sha256": "487acea3608887b3af09292ca754a4e53efc4cbff95f3dfccc839b6f0e53640e",
+      "source": "data.wikipedia_split.psgs_w100; reservoir seed 12345"
+    },
+    {
+      "name": "qa-tests.zip",
+      "group": "main",
+      "bytes": 1986869,
+      "sha256": "cf70999bda28e600093ddba8058e34d0c2974debb01f5a4e70605101d27eb887",
+      "source": "Official DPR-formatted five QA tests"
+    },
+    {
+      "name": "single_nq_retriever.cp",
+      "group": "single",
+      "bytes": 875965155,
+      "sha256": "f376e0276d6867555190330cc3159fa69d25709b65f45295dae2271618b89a70",
+      "source": "checkpoint.retriever.single.nq.bert-base-encoder"
+    },
+    {
+      "name": "single_nq_passage_vectors.pkl",
+      "group": "single",
+      "bytes": 156195432,
+      "sha256": "b1bac5ee8bc93f1a7e79f6415956024b567dc0342686dd1c4528ed5a286621ef",
+      "source": "Group 5: official NQ-Single encoder, fixed 50k"
+    }
+  ]
+}

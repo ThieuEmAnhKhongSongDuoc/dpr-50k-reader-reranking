@@ -1,0 +1,36 @@
+{
+  "matching": "DPR SimpleTokenizer; NFD; case-insensitive token phrase match in passage text (same answer-string style as local evaluator)",
+  "coverage_definition": "fraction of test questions with any answer string appearing in at least one corpus passage",
+  "corpus_passages": 50000,
+  "total_questions": 28219,
+  "questions_without_valid_answer_string": 0,
+  "covered_questions": 18142,
+  "overall_coverage": 0.6429001736418725,
+  "per_dataset": {
+    "nq": {
+      "questions": 3610,
+      "covered_questions": 2192,
+      "coverage": 0.607202216066482
+    },
+    "trivia": {
+      "questions": 11313,
+      "covered_questions": 8233,
+      "coverage": 0.7277468399186776
+    },
+    "webq": {
+      "questions": 2032,
+      "covered_questions": 1388,
+      "coverage": 0.6830708661417323
+    },
+    "curatedtrec": {
+      "questions": 694,
+      "covered_questions": 217,
+      "coverage": 0.3126801152737752
+    },
+    "squad1": {
+      "questions": 10570,
+      "covered_questions": 6112,
+      "coverage": 0.578240302743614
+    }
+  }
+}

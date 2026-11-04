@@ -1,0 +1,120 @@
+{
+  "authors": [
+    "Hồ Thành Tài",
+    "Lê Trần Bình An",
+    "Phan Ba Song Toàn",
+    "Tran Quang Long",
+    "Trịnh Minh Bảo Trân"
+  ],
+  "group": "Group 5",
+  "sources": {
+    "dpr_multi.json": {
+      "source_basename": "paper_multi_50k_fulltest_metrics.json",
+      "source_sha256": "ed14909f606eedcdeac3a0e03ce68eb47cc0e06579a14fd91b429165228d4447",
+      "omitted_path_fields": [
+        "faiss_index",
+        "model_checkpoint",
+        "passage_vectors"
+      ]
+    },
+    "dpr_single_nq.json": {
+      "source_basename": "paper_single_nq_50k_fulltest_metrics.json",
+      "source_sha256": "a84316ba6b96a569b4562acd6a559da39159512efdf75e6e29f7786afc11f6ad",
+      "omitted_path_fields": [
+        "faiss_index",
+        "model_checkpoint",
+        "passage_vectors"
+      ]
+    },
+    "lucene_bm25.json": {
+      "source_basename": "paper_lucene_bm25_50k_fulltest.json",
+      "source_sha256": "ab75766da59b9e4b7c9c2f28f87f10994c86d4049e495671f70cd7681e45dfda",
+      "omitted_path_fields": [
+        "corpus",
+        "test_dir"
+      ]
+    },
+    "coverage.json": {
+      "source_basename": "answer_passage_coverage_50k_verified_20261021.json",
+      "source_sha256": "a3384f9603d597fdc7debb58a7cf38f8596e6a3ec8deafc3030aa936dbc06827",
+      "omitted_path_fields": [
+        "corpus_file",
+        "qa_directory"
+      ]
+    },
+    "nq_reader200.json": {
+      "source_basename": "reranked_nq_top200.json",
+      "source_sha256": "8bb1858d737d2d7934839fa46bba57ca960ded8cfd387f9ab31522c0401c5c52",
+      "omitted_path_fields": [
+        "corpus",
+        "passage_vectors",
+        "reader_checkpoint",
+        "retriever_checkpoint"
+      ]
+    },
+    "curatedtrec_reader200.json": {
+      "source_basename": "reranked_curatedtrec_top200.json",
+      "source_sha256": "81583164d3064bcf2113613bb7564666e9dca4b7f4467bffb287e00c87849432",
+      "omitted_path_fields": [
+        "corpus",
+        "passage_vectors",
+        "reader_checkpoint",
+        "retriever_checkpoint"
+      ]
+    },
+    "trivia_reader200.json": {
+      "source_basename": "reranked_trivia_top200.json",
+      "source_sha256": "604a96efba0616747637260cd9e30c1f1d94f125ad29f6926534b3f81adda243",
+      "omitted_path_fields": [
+        "corpus",
+        "passage_vectors",
+        "reader_checkpoint",
+        "retriever_checkpoint"
+      ]
+    },
+    "nq_reader100.json": {
+      "source_basename": "reranked_nq.json",
+      "source_sha256": "91d41f58708b9387a368b0fc593590fe90e6fbdbac0907a39b05fffbfdd48928",
+      "omitted_path_fields": [
+        "corpus",
+        "passage_vectors",
+        "reader_checkpoint",
+        "retriever_checkpoint"
+      ]
+    },
+    "curatedtrec_reader100.json": {
+      "source_basename": "reranked_curatedtrec.json",
+      "source_sha256": "3bd9cdbc79b2c8d7c3e8ab7098e0d3711a8d107699cd4204718fec8527af3432",
+      "omitted_path_fields": [
+        "corpus",
+        "passage_vectors",
+        "reader_checkpoint",
+        "retriever_checkpoint"
+      ]
+    }
+  },
+  "corpus_sha256": "487ACEA3608887B3AF09292CA754A4E53EFC4CBFF95F3DFCCC839B6F0E53640E",
+  "resource_ids": {
+    "multi": "checkpoint.retriever.multiset.bert-base-encoder",
+    "single_nq": "checkpoint.retriever.single.nq.bert-base-encoder",
+    "reader": "checkpoint.reader.nq-trivia-hybrid.hf-bert-base",
+    "corpus": "data.wikipedia_split.psgs_w100"
+  },
+  "sampling": {
+    "source_resource": "data.wikipedia_split.psgs_w100",
+    "source_url": "https://dl.fbaipublicfiles.com/dpr/wikipedia_split/psgs_w100.tsv.gz",
+    "archive_bytes": 4694541059,
+    "passages_in_source": 21015324,
+    "sample_count": 50000,
+    "sample_method": "reservoir sampling over the complete corpus",
+    "seed": 12345
+  },
+  "excluded_legacy_fusion": {
+    "source_basename": "paper_multi_bm25_fusion_50k_fulltest.json",
+    "source_sha256": "b28172b3f1bdb7b8536c33bc4c3c3b8e01f50bf1657c33ef69ccad8d66b16966",
+    "omitted_path_fields": [
+      "dpr_checkpoint"
+    ],
+    "reason": "Lucene bare numeric IDs versus DPR wiki-prefixed IDs; no normalization before union and scoring. Excluded from manuscript."
+  }
+}

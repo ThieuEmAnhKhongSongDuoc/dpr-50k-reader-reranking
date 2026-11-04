@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "checked_accuracy_cells": 80,
+  "baseline_test_questions": 28219,
+  "reranked_test_questions": 15617,
+  "corpus_passages": 50000,
+  "covered_questions": 18142,
+  "scope": "Saved-result arithmetic and metadata only; no model execution."
+}

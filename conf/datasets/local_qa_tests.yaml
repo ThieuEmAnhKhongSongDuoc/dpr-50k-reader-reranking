@@ -1,0 +1,22 @@
+# Official DPR QA test files downloaded into data/raw/downloads.
+# @package _group_
+
+nq_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/raw/downloads/data/retriever/qas/nq-test.csv
+
+trivia_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/raw/downloads/data/retriever/qas/trivia-test.csv
+
+webq_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/raw/downloads/data/retriever/qas/webq-test.csv
+
+curatedtrec_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/raw/downloads/data/retriever/qas/curatedtrec-test.csv
+
+squad1_test:
+  _target_: dpr.data.retriever_data.CsvQASrc
+  file: data/raw/downloads/data/retriever/qas/squad1-test.csv

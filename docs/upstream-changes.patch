@@ -1,0 +1,48 @@
+diff --git a/dpr/models/hf_models.py b/dpr/models/hf_models.py
+index 3540bd6..e881370 100644
+--- a/dpr/models/hf_models.py
++++ b/dpr/models/hf_models.py
+@@ -20,7 +20,12 @@ from torch import nn
+ 
+ if transformers.__version__.startswith("4"):
+     from transformers import BertConfig, BertModel
+-    from transformers import AdamW
++    try:
++        from transformers import AdamW
++    except ImportError:
++        # Transformers 4.4x+ no longer exports AdamW; inference and training
++        # can use PyTorch's equivalent optimizer implementation.
++        from torch.optim import AdamW
+     from transformers import BertTokenizer
+     from transformers import RobertaTokenizer
+ else:
+@@ -295,7 +300,7 @@ class BertTensorizer(Tensorizer):
+                 text_pair=text,
+                 add_special_tokens=add_special_tokens,
+                 max_length=self.max_length if apply_max_len else 10000,
+-                pad_to_max_length=False,
++                padding=False,
+                 truncation=True,
+             )
+         else:
+@@ -303,7 +308,7 @@ class BertTensorizer(Tensorizer):
+                 text,
+                 add_special_tokens=add_special_tokens,
+                 max_length=self.max_length if apply_max_len else 10000,
+-                pad_to_max_length=False,
++                padding=False,
+                 truncation=True,
+             )
+ 
+diff --git a/dpr/utils/model_utils.py b/dpr/utils/model_utils.py
+index a021a2b..266b894 100644
+--- a/dpr/utils/model_utils.py
++++ b/dpr/utils/model_utils.py
+@@ -157,6 +157,6 @@ def get_model_file(args, file_prefix) -> str:
+ 
+ def load_states_from_checkpoint(model_file: str) -> CheckpointState:
+     logger.info("Reading saved model from %s", model_file)
+-    state_dict = torch.load(model_file, map_location=lambda s, l: default_restore_location(s, "cpu"))
++    state_dict = torch.load(model_file, map_location=lambda s, l: default_restore_location(s, "cpu"), weights_only=False)
+     logger.info("model_state_dict keys %s", state_dict.keys())
+     return CheckpointState(**state_dict)

@@ -20,7 +20,12 @@ from torch import nn
 
 if transformers.__version__.startswith("4"):
     from transformers import BertConfig, BertModel
-    from transformers import AdamW
+    try:
+        from transformers import AdamW
+    except ImportError:
+        # Transformers 4.4x+ no longer exports AdamW; inference and training
+        # can use PyTorch's equivalent optimizer implementation.
+        from torch.optim import AdamW
     from transformers import BertTokenizer
     from transformers import RobertaTokenizer
 else:
@@ -295,7 +300,7 @@ class BertTensorizer(Tensorizer):
                 text_pair=text,
                 add_special_tokens=add_special_tokens,
                 max_length=self.max_length if apply_max_len else 10000,
-                pad_to_max_length=False,
+                padding=False,
                 truncation=True,
             )
         else:
@@ -303,7 +308,7 @@ class BertTensorizer(Tensorizer):
                 text,
                 add_special_tokens=add_special_tokens,
                 max_length=self.max_length if apply_max_len else 10000,
-                pad_to_max_length=False,
+                padding=False,
                 truncation=True,
             )
 
