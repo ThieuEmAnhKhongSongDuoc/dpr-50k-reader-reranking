@@ -6,7 +6,7 @@ import unicodedata
 from functools import lru_cache
 from pathlib import Path
 
-from dpr.data.qa_validation import has_answer
+from dpr.data.qa_validation import regex_match
 from dpr.utils.tokenizers import SimpleTokenizer
 
 
@@ -22,7 +22,11 @@ def answer_match_type(dataset_key: str) -> str:
 def passage_has_answer(answers, passage_text: str, tokenizer, dataset_key: str) -> bool:
     """Use DPR's canonical matcher with the correct benchmark-specific mode."""
     if answer_match_type(dataset_key) == "regex":
-        return has_answer(answers, passage_text, tokenizer, "regex")
+        text = unicodedata.normalize("NFD", passage_text)
+        return any(
+            regex_match(text, unicodedata.normalize("NFD", answer))
+            for answer in answers
+        )
     text_tokens = _cached_string_tokens(unicodedata.normalize("NFD", passage_text))
     for answer_tokens in _cached_answer_tokens(tuple(str(a) for a in answers)):
         if not answer_tokens:

@@ -1,0 +1,56 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T5,T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \newcommand{\authorname}[1]{{\fontencoding{T5}\selectfont #1}}
+\else
+  \usepackage{fontspec}
+  \IfFontExistsTF{TeX Gyre Termes}{\setmainfont{TeX Gyre Termes}}{\setmainfont{Times New Roman}}
+  \newcommand{\authorname}[1]{#1}
+\fi
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\hypersetup{unicode=true,
+pdftitle={Dense Passage Retrieval and Reader Reranking on a 50K-Passage Wikipedia Corpus},
+pdfauthor={Hồ Thành Tài, Lê Trần Bình An, Phan Ba Song Toàn, Tran Quang Long, Trịnh Minh Bảo Trân},
+pdfsubject={Empirical DPR evaluation on a reduced Wikipedia corpus}}
+\newcommand{\Hit}{\operatorname{Hit}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\hyphenation{Wiki-pedia re-ranking retriever}
+\begin{document}
+\bstctlcite{IEEEcontrol}
+\title{Dense Passage Retrieval and Reader Reranking on a 50K-Passage Wikipedia Corpus}
+\author{
+\IEEEauthorblockN{\authorname{Hồ Thành Tài}, \authorname{Lê Trần Bình An}, \authorname{Phan Ba Song Toàn}\\
+\authorname{Tran Quang Long}, \authorname{Trịnh Minh Bảo Trân}}
+\IEEEauthorblockA{\textit{Department of Artificial Intelligence, FPT University}\\
+Da Nang, 550000, Vietnam}
+}
+\maketitle
+\input{sections/abstract}
+\begin{IEEEkeywords}
+dense passage retrieval, passage reranking, corpus coverage, FAISS, open-domain question answering
+\end{IEEEkeywords}
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/method}
+\input{sections/experiments}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/limitations}
+\input{sections/conclusion}
+\input{sections/author_contributions}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{document}

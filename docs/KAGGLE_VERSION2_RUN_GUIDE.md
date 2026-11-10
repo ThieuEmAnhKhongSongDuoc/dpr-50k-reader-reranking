@@ -162,6 +162,31 @@ At the end of a successful run, download these from the Kaggle notebook's Output
 - trivia_test_budget_metrics.json only if dev selected K=200
 - the TriviaQA dev K=200 per-query gzip file, which audits K selection
 
+For consistent ingestion into the manuscript table builder, run this final
+cell to create a folder with the standardized aggregate filenames:
+
+~~~python
+import shutil
+
+feedback_out = Path('/kaggle/working/feedback_outputs')
+feedback_out.mkdir(exist_ok=True)
+shutil.copy2(dev_summary, feedback_out / 'trivia_dev_budget_selection.json')
+shutil.copy2(trec_output, feedback_out / 'curatedtrec_reader_regex_k200_fp16.json')
+shutil.copy2(trivia_test_output, feedback_out / 'trivia_reader_selected_k_fp16.json')
+
+trec_per_query = trec_output.with_name(trec_output.stem + '_per_query') / 'curatedtrec_test.jsonl.gz'
+dev_per_query = dev_output.with_name(dev_output.stem + '_per_query') / 'trivia_dev.jsonl.gz'
+trivia_per_query = trivia_test_output.with_name(trivia_test_output.stem + '_per_query') / 'trivia_test.jsonl.gz'
+shutil.copy2(trec_per_query, feedback_out / 'curatedtrec_reader_regex_k200_fp16_per_query.jsonl.gz')
+shutil.copy2(dev_per_query, feedback_out / 'trivia_dev_reader_k200_fp16_per_query.jsonl.gz')
+shutil.copy2(trivia_per_query, feedback_out / 'trivia_reader_selected_k_fp16_per_query.jsonl.gz')
+
+budget_metrics = Path('/kaggle/working/trivia_test_budget_metrics.json')
+if budget_metrics.is_file():
+    shutil.copy2(budget_metrics, feedback_out / 'trivia_test_budget_metrics.json')
+print('Download every file in:', feedback_out)
+~~~
+
 Do not reuse the previous CuratedTREC Reader aggregate: it used string matching and must be replaced.
 
 ## Expected resource use

@@ -169,7 +169,7 @@ def main():
     report = {
         "corpus_file": str(args.corpus),
         "qa_directory": str(args.qa_dir),
-        "matching": "DPR dpr.data.qa_validation.has_answer: SimpleTokenizer string matching except CuratedTREC, which uses its official regex match_type",
+        "matching": "DPR SimpleTokenizer token matching for string answers; CuratedTREC uses dpr.data.qa_validation.regex_match with the official regex match_type",
         "coverage_definition": "fraction of test questions with any answer string appearing in at least one corpus passage",
         "corpus_passages": corpus_count,
         "total_questions": len(questions),

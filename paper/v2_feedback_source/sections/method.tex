@@ -1,0 +1,62 @@
+\section{Methodology}
+\subsection{Corpus Acquisition and Preprocessing}
+We sample the official DPR Wikipedia passage resource (\path{data.wikipedia_split.psgs_w100}). The recorded archive size is 4,694,541,059 bytes, and the manifest records 21,015,324 source passages. A streaming reservoir sampler selects 50,000 distinct passage IDs without replacement using seed 12345. Each source passage has the same inclusion probability. Sampling does not use test questions, answer strings, or known positive passages to construct an answer-enriched collection.
+
+The sample is approximately 0.238\% of the source collection. Its tab-separated records retain \texttt{id}, \texttt{text}, and \texttt{title}. Multiple passages may share an article title. No new passage segmentation is performed after sampling, and the official compressed source is retained separately. The corpus file used in the Kaggle reranking inputs and the local coverage measurement has the same SHA256 digest; the digest is recorded in the accompanying artifact manifest.
+
+\subsection{DPR Dual Encoder and Exact Search}
+Let $q$ denote a question and $p$ a passage. The DPR question and passage encoders produce independent 768-dimensional representations:
+\begin{equation}
+u=E_Q(q),\qquad v_p=E_P(p),\qquad s_D(q,p)=u^{\top}v_p.
+\label{eq:dpr}
+\end{equation}
+The encoders use pretrained \texttt{bert-base-uncased} architectures and released DPR checkpoint weights. The retriever sequence limit is 256 tokens. Passage inputs use title and body text through the DPR tensorizer. Vectors are not unit-normalized for cosine similarity. Passage vectors are computed with the passage encoder corresponding to the selected retriever checkpoint and are associated with their passage IDs.
+
+The original DPR training objective ranks a positive passage against explicit and in-batch negatives. For context, its per-question negative log-likelihood has the form
+\begin{equation}
+\mathcal{L}_i=-\log\frac{\exp s_D(q_i,p_i^+)}
+{\exp s_D(q_i,p_i^+)+\sum_{p^-\in\mathcal{N}_i}\exp s_D(q_i,p^-)}.
+\end{equation}
+We do not recompute this loss or update encoder weights in the experiments reported here. In particular, test inference does not have a training batch size or training epoch count.
+
+FAISS \texttt{IndexFlatIP} exhaustively scores the sampled passage vectors. The raw float32 matrix contains $50{,}000\times768\times4=153{,}600{,}000$ bytes, approximately 146.5 MiB, excluding ID mappings, model memory, and duplicate buffers. This is manageable at the selected corpus size. The published large-corpus DPR deployment uses HNSW with 512 stored neighbors, construction depth 200, and search depth 128~\cite{dpr}. Both index wrappers are available in the original code. We do not report a paired HNSW--FlatIP experiment, so no measured accuracy increase is assigned to the index substitution itself.
+
+\subsection{Candidate Construction}
+For a question $q$, exact DPR search produces a candidate set
+\begin{equation}
+\mathcal{C}_K(q)=\operatorname{TopK}_{p\in\mathcal{P}}s_D(q,p).
+\end{equation}
+The primary reranking experiment uses $K=200$. Each returned passage ID retrieves the title and body from the fixed corpus. The Reader input is constructed as
+\begin{equation}
+\texttt{[CLS]}\ q\ \texttt{[SEP]}\ t_p\ \texttt{[SEP]}\ p.
+\end{equation}
+The implementation appends body tokens to the question--title encoding, then truncates or pads the combined sequence to the Reader limit of 350 tokens. It does not unconditionally append another separator after the body. Token type IDs distinguish the question segment from title and passage; the attention mask excludes padding. Gold answer strings are not supplied to the Reader.
+
+\begin{figure*}[t]
+\centering
+\input{figures/pipeline}
+\caption{Inference pipeline. Passage vectors are generated offline with the matching DPR checkpoint. Each Reader input contains one question and one candidate's title and text. Answers enter only the evaluation branch, after ranking.}
+\label{fig:pipeline}
+\end{figure*}
+
+\subsection{Reader Relevance Reranking}
+Unlike the dual encoder, the Reader processes the concatenated question--passage input with one BERT encoder. Self-attention can connect tokens across the question, title, and passage. If $h_{\mathrm{CLS}}(q,t_p,p)$ is the final hidden vector of the initial token, the original \texttt{qa\_classifier} computes
+\begin{equation}
+s_R(q,p)=w^{\top}h_{\mathrm{CLS}}(q,t_p,p)+b.
+\label{eq:reader}
+\end{equation}
+The reranked list sorts $\mathcal{C}_K(q)$ by $s_R$. We use raw relevance logits, not batchwise probabilities, and do not add the DPR score to the Reader score. For TriviaQA, we also decode a span from the candidate with the highest relevance score and report normalized Exact Match as a separate end-to-end metric. Answer-hit accuracy remains a retrieval diagnostic and is not replaced by Exact Match.
+
+We use the official \texttt{nq-trivia-hybrid} Reader checkpoint; its full resource identifier is recorded in the artifact manifest. The registry describes it as a reader trained using Trivia multi-hybrid retrieval results~\cite{dprcode}. This provenance motivates a possible dataset-alignment explanation, but does not establish how much of a measured gain is caused by training-domain alignment.
+
+Reader evaluation uses \path{torch.inference_mode}. A batch contains 16 candidate pairs, represented as $[16,1,350]$ before the Reader flattens its first two axes. DataParallel divides the first axis across two T4 GPUs. Each pair is scored independently; there is no cross-passage attention between the 200 candidates. No parameters are updated, and the existing DPR passage vectors are reused.
+
+\subsection{Lexical Reference}
+The BM25 reference is a standalone Java runner using Lucene 8.11.2, \texttt{EnglishAnalyzer}, and \texttt{BM25Similarity} with $k_1=0.9$ and $b=0.4$. It indexes article title and passage body together, while answer matching uses body text only. This is a Lucene reference, not the exact software deployment of the original paper.
+
+\subsection{BM25+DPR Score Fusion}\label{sec:hybrid}
+The corrected hybrid baseline retrieves the top 2,000 candidates independently from Lucene BM25 and DPR, normalizes passage IDs to the common \texttt{wiki:<id>} form, and scores their union with
+\begin{equation}
+s_H(q,p)=s_{BM25}(q,p)+1.1s_D(q,p).
+\end{equation}
+The system reports the top 100 passages under this raw-score sum. The two score distributions are not normalized; the coefficient and candidate limits are recorded with the result. Per-query candidate IDs and component scores are retained for audit.

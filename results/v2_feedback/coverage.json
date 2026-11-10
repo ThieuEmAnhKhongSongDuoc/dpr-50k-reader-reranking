@@ -1,7 +1,7 @@
 {
   "corpus_file": "D:\\DPR-data\\wikipedia\\psgs_w100_sample_50000.tsv",
   "qa_directory": "data\\raw\\downloads\\data\\retriever\\qas",
-  "matching": "DPR dpr.data.qa_validation.has_answer: SimpleTokenizer string matching except CuratedTREC, which uses its official regex match_type",
+  "matching": "DPR SimpleTokenizer token matching for string answers; CuratedTREC uses dpr.data.qa_validation.regex_match with the official regex match_type",
   "coverage_definition": "fraction of test questions with any answer string appearing in at least one corpus passage",
   "corpus_passages": 50000,
   "total_questions": 28219,

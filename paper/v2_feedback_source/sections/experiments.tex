@@ -1,0 +1,40 @@
+\section{Experimental Setup}
+\subsection{Datasets and Evaluation Scope}
+The first-stage evaluations cover all 28,219 test questions from the five official DPR-formatted benchmarks. The feedback Reader reruns cover the full CuratedTREC and TriviaQA test sets. We do not subsample or repeatedly redraw test questions for this report. WebQuestions and SQuAD are first-stage references. Table~\ref{tab:datasets} lists the denominators and corpus coverage.
+
+\input{tables/datasets}
+
+The DPR Multi checkpoint is the fixed first stage for Reader reranking. An additional official NQ-Single checkpoint is reported for context; its non-NQ rows are transfer evaluations. Candidate budgets $K=100$ and $K=200$ are compared on the official TriviaQA development split, using Hit@20 to select the budget before test evaluation. The test set is not used for budget selection. For the feedback Reader runs, candidate relevance and answer-span outputs are computed in FP16 on two Kaggle Tesla T4 GPUs. The earlier NQ Reader result, where included, is identified as a prior FP32 run.
+
+\subsection{Answer-Hit Metric}
+Let $A_q$ contain the accepted answer strings of question $q$, and let $m(a,p)$ indicate that the normalized token sequence of answer $a$ occurs contiguously in the body of passage $p$. For ranked list $R(q)$,
+\begin{equation}
+\Hit@k=\frac{1}{|Q|}\sum_{q\in Q}
+\mathbf{1}\!\left[\exists p\in R_k(q),\ a\in A_q:m(a,p)\right].
+\label{eq:hit}
+\end{equation}
+For NQ, TriviaQA, WebQuestions, and SQuAD, we use Unicode NFD normalization, DPR SimpleTokenizer, and case-insensitive token-phrase matching. CuratedTREC answer entries are regular expressions in the official DPR data, so we use DPR's \texttt{regex\_match} with its case-insensitive, Unicode, multiline flags for that dataset. Titles are excluded from answer matching. All displayed rates are recomputed from integer hit counts; percentage-point differences use unrounded rates.
+
+This follows the answer-containing-passage retrieval convention. It is not an annotated relevance judgment or end-to-end QA Exact Match. For TriviaQA, we separately report normalized Exact Match from the Reader span selected from the highest-relevance candidate at the evaluated budget. A passage can contain the answer string without supporting the required relation; aliases and common short answers can also affect answer-hit scores.
+
+\subsection{Coverage and Coverage-Conditioned Accuracy}
+Corpus coverage is measured over all 50,000 passage bodies with the same dataset-specific matcher:
+\begin{equation}
+\Cov=\frac{1}{|Q|}\sum_{q\in Q}
+\mathbf{1}\!\left[\exists p\in\mathcal{P},\ a\in A_q:m(a,p)\right].
+\label{eq:coverage}
+\end{equation}
+The string-answer diagnostic scans normalized passage tokens with a multi-pattern token matcher; CuratedTREC scans with the official DPR regex matcher. Neither uses retrieval scores. Under this evaluator, $\Hit@k\leq\Cov$ for any retriever searching this corpus. Coverage is therefore an answer availability ceiling, not a score achieved by a model.
+
+For questions whose answer string appears somewhere in the corpus, we additionally derive
+\begin{equation}
+\Hit@k\mid\mathrm{covered}
+=\frac{\text{number of hits at }k}{\text{number of covered questions}}.
+\label{eq:conditional}
+\end{equation}
+This diagnostic changes the denominator. It must be reported alongside full-test accuracy, not substituted for it when comparing with a benchmark paper. The original full test remains the evaluation set; no questions are removed from the primary results.
+
+\subsection{Runtime and Reproducibility}
+The feedback Reader reruns use two Kaggle Tesla T4 GPUs, a global candidate batch of 16, and FP16 inference. Retriever question batches are eight. Passage embeddings, corpus records, and QA files are fixed inputs; the reranking corpus is byte-identical to the coverage corpus. Runtime is the script's reranking-loop timer, including pair preparation, Reader scoring, and hit matching, but excluding queueing, environment setup, model loading, initial question encoding, and FAISS search. First-stage timing from another environment is not used to claim an end-to-end speed ratio.
+
+Per-query outputs retain question IDs, candidate passage IDs, original retriever ranks, Reader relevance scores, answer-hit labels, and Reader span predictions. The dev split is used for candidate-budget selection and the full test sets are reserved for final evaluation.

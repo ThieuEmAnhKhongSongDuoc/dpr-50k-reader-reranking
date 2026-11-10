@@ -1,0 +1,12 @@
+\begin{tikzpicture}[node distance=6mm,box/.style={draw,rounded corners=1pt,align=center,minimum height=10mm,font=\small},arr/.style={-{Latex[length=2mm]},thick}]
+\node[box,text width=20mm] (q) {Test question};
+\node[box,text width=28mm,right=of q] (d) {DPR question\\encoder};
+\node[box,text width=29mm,right=of d] (f) {IndexFlatIP\\50k passage vectors};
+\node[box,text width=26mm,right=of f] (r) {Reader relevance\\$K$ question--passage pairs};
+\node[box,text width=25mm,right=of r] (o) {Reranked list\\answer-hit evaluation};
+\draw[arr] (q)--(d);\draw[arr] (d)--(f);\draw[arr] (f)--node[above,font=\scriptsize] {IDs}(r);\draw[arr] (r)--(o);
+\node[align=center,font=\scriptsize,below=7mm of f] (p) {Offline passage encoder\\matching checkpoint, titles and text};
+\draw[arr] (p)--(f);
+\node[align=center,font=\scriptsize,below=7mm of o] (a) {Reference answer strings\\evaluation only};
+\draw[arr] (a)--(o);
+\end{tikzpicture}

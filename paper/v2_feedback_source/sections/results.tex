@@ -1,0 +1,15 @@
+\section{Results}
+\subsection{Full-Test Lexical, Dense, and Hybrid References}
+Table~\ref{tab:baselines} reports Hit@20 and Hit@100 over all 28,219 test questions. DPR Multi scores exceed Lucene BM25 at both cutoffs on all five benchmarks. The corrected BM25+DPR fusion is slightly higher than DPR Multi at both cutoffs on each test set. The fusion uses the raw weighted sum specified in Section~\ref{sec:hybrid}; these values are specific to that score scale, coefficient, and candidate union.
+
+\input{tables/baselines}
+
+\subsection{Reader Reranking and Span Exact Match}
+The feedback version removes the previous CuratedTREC Reader result because it used literal-string matching, and removes the incomplete TriviaQA $K=100$ run. Corrected full-test Reader scores for CuratedTREC and TriviaQA, including TriviaQA span Exact Match, will be inserted from the FP16 Kaggle outputs. The candidate budget is selected from TriviaQA development Hit@20 before interpreting its test metrics. No corrected Reader score is claimed until those outputs have been generated.
+
+\subsection{Corrected CuratedTREC Evaluation and Corpus Coverage}
+Using DPR's official regular-expression matching changes CuratedTREC corpus coverage from the previous literal-string count of 217 to 609 of 694 questions (87.75\%). The earlier 31.27\% coverage estimate and the interpretation based on it are withdrawn. Across all five tests, 18,534 of 28,219 questions have an answer match somewhere in the 50,000-passage corpus (65.68\%).
+
+\input{tables/datasets}
+
+On the full CuratedTREC test, corrected Hit@20/Hit@100 is 40.92\%/55.48\% for BM25, 43.52\%/63.83\% for the NQ-Single transfer checkpoint, 51.15\%/68.01\% for DPR Multi, and 52.16\%/68.16\% for BM25+DPR. Among the 609 covered questions, DPR Multi retrieves a matching answer in its top 20 for 58.29\%; BM25+DPR reaches 59.44\%. At top 100, the corresponding conditional values are 77.50\% and 77.67\%. These conditional rates use only covered questions and are reported alongside, not instead of, full-test accuracy.

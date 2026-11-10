@@ -1,0 +1,17 @@
+\section{Discussion and Limitations}
+\subsection{What the CuratedTREC Correction Changes}
+CuratedTREC uses regular-expression answer references in the official DPR data. Evaluating them as literal strings undercounted answer-bearing passages and made the corpus appear unusually sparse for this test set. With the official regex evaluator, 87.75\% of CuratedTREC questions have a matching answer expression somewhere in the corpus, the highest coverage among the five tests. The earlier explanation that CuratedTREC had low absolute accuracy mainly because its answer passages were absent is therefore withdrawn.
+
+The corrected first-stage results show that DPR Multi reaches Hit@20 of 51.15\% on CuratedTREC and the local BM25+DPR fusion reaches 52.16\%. Among covered questions, these are 58.29\% and 59.44\%, respectively. Coverage-conditioned values help describe ranking after answer availability is accounted for; they do not replace full-test accuracy or establish semantic support. Reader results must use the same regex matcher before any cross-dataset interpretation is made.
+
+\subsection{Reader Contribution and Scope}
+The feedback revision adds Reader span Exact Match on TriviaQA alongside answer-containing-passage Hit@k. The span is selected from the candidate with the highest Reader relevance score within the evaluated budget. TriviaQA's candidate budget is selected on its development split; the test split is reserved for final metrics. Per-query files retain candidate IDs, retriever ranks, relevance scores, answer-hit labels, and span predictions so the results can be audited.
+
+\subsection{Limitations}
+The evaluation uses one fixed reservoir sample of 50,000 passages from the 21-million-passage Wikipedia corpus. Sampling changes both answer availability and the distractor distribution. Coverage is an answer-string or regex availability diagnostic, not a semantic relevance judgment; a match can occur in a passage that does not support the answer to the question.
+
+All DPR and Reader weights are released author checkpoints. The experiments evaluate inference and do not reproduce DPR training or update model weights. The corrected BM25+DPR baseline uses the recorded raw score sum and coefficient; the component scores are not normalized, so the resulting hybrid values depend on that configuration.
+
+The study uses one corpus seed and one run per configuration. It does not estimate variability across corpus samples or claim statistical significance. IndexFlatIP gives exact inner-product results for the supplied vectors, but this revision does not measure an HNSW--FlatIP speed/recall tradeoff.
+
+The Reader operates on a finite candidate set from DPR and cannot recover answer-bearing passages outside it. Span predictions are also affected by the Reader's 350-token input limit. Reader Exact Match is reported only for datasets with literal answer strings; CuratedTREC's regex references are evaluated with answer-hit matching instead.

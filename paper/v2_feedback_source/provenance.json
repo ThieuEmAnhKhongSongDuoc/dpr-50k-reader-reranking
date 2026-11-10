@@ -1,0 +1,107 @@
+{
+  "authors": [
+    "Hồ Thành Tài",
+    "Lê Trần Bình An",
+    "Phan Ba Song Toàn",
+    "Tran Quang Long",
+    "Trịnh Minh Bảo Trân"
+  ],
+  "group": "Group 5",
+  "sources": {
+    "coverage.json": {
+      "source_files": [
+        {
+          "path": "outputs\\local_retrieval\\answer_passage_coverage_50k_regex_trec_recheck.json",
+          "bytes": 1284,
+          "sha256": "f45c7b343336382b70b7791acdd0483961cb3e90936818473522da16fe8fb69c"
+        }
+      ]
+    },
+    "lucene_bm25.json": {
+      "source_files": [
+        {
+          "path": "paper_lucene_bm25_50k_fulltest.json",
+          "sha256": "ab75766da59b9e4b7c9c2f28f87f10994c86d4049e495671f70cd7681e45dfda"
+        },
+        {
+          "path": "paper_lucene_bm25_50k_fulltest_regex_trec.json",
+          "sha256": "7d414198c5a9d9bda0169ec21060ea2c29a7370b3153f8bf4c1650891b6ab85c"
+        }
+      ]
+    },
+    "dpr_multi.json": {
+      "source_files": [
+        {
+          "path": "paper_multi_50k_fulltest_metrics.json",
+          "sha256": "ed14909f606eedcdeac3a0e03ce68eb47cc0e06579a14fd91b429165228d4447"
+        },
+        {
+          "path": "paper_multi_trec_regex_final.json",
+          "sha256": "db688bbf730dd70f4272f191498e07403356eef3b58dc4670fb39abdd24e62c2"
+        }
+      ]
+    },
+    "dpr_single_nq.json": {
+      "source_files": [
+        {
+          "path": "paper_single_nq_50k_fulltest_metrics.json",
+          "sha256": "a84316ba6b96a569b4562acd6a559da39159512efdf75e6e29f7786afc11f6ad"
+        },
+        {
+          "path": "paper_single_nq_trec_regex_final.json",
+          "sha256": "b3781f8aaed1ff9858bd6dba16b844921654520b6adcf06fc004986867e759a6"
+        }
+      ]
+    },
+    "bm25_dpr_fusion.json": {
+      "source_files": [
+        {
+          "path": "paper_multi_bm25_fusion_50k_fulltest_corrected.json",
+          "sha256": "dcf4f5894b2075207b794df486e0978f50b5c7dd9509508ad4cb7df2c9f789dd"
+        },
+        {
+          "path": "paper_multi_bm25_fusion_50k_fulltest_corrected_per_query/all_datasets.jsonl.gz",
+          "sha256": "bae8dad811141f8d361062f02010cac4e05a2648d8f32ab42f5e063f8f8f9a1a"
+        }
+      ]
+    }
+  },
+  "corpus_sha256": "487ACEA3608887B3AF09292CA754A4E53EFC4CBFF95F3DFCCC839B6F0E53640E",
+  "resource_ids": {
+    "multi": "checkpoint.retriever.multiset.bert-base-encoder",
+    "single_nq": "checkpoint.retriever.single.nq.bert-base-encoder",
+    "reader": "checkpoint.reader.nq-trivia-hybrid.hf-bert-base",
+    "corpus": "data.wikipedia_split.psgs_w100"
+  },
+  "sampling": {
+    "source_resource": "data.wikipedia_split.psgs_w100",
+    "source_url": "https://dl.fbaipublicfiles.com/dpr/wikipedia_split/psgs_w100.tsv.gz",
+    "archive_bytes": 4694541059,
+    "passages_in_source": 21015324,
+    "sample_count": 50000,
+    "sample_method": "reservoir sampling over the complete corpus",
+    "seed": 12345
+  },
+  "excluded_legacy_fusion": {
+    "source_basename": "paper_multi_bm25_fusion_50k_fulltest.json",
+    "source_sha256": "b28172b3f1bdb7b8536c33bc4c3c3b8e01f50bf1657c33ef69ccad8d66b16966",
+    "omitted_path_fields": [
+      "dpr_checkpoint"
+    ],
+    "reason": "Lucene bare numeric IDs versus DPR wiki-prefixed IDs; no normalization before union and scoring. Excluded from manuscript."
+  },
+  "legacy_fusion_superseded": {
+    "source_basename": "paper_multi_bm25_fusion_50k_fulltest.json",
+    "reason": "Earlier run joined bare Lucene IDs to wiki:-prefixed DPR IDs without normalization. The corrected rerun normalizes IDs and is recorded under bm25_dpr_fusion.json."
+  },
+  "feedback_status": {
+    "status": "draft; Reader feedback runs pending Kaggle execution",
+    "corrected_curatedtrec_regex": true,
+    "hybrid_full_test_complete": true,
+    "hybrid_per_query_rows": 28219,
+    "reader_fp16_curatedtrec_and_triviaqa": "pending",
+    "triviaqa_development_budget_selection": "pending",
+    "triviaqa_reader_span_exact_match": "pending",
+    "author_contributions": "awaiting verified roles for all five members"
+  }
+}

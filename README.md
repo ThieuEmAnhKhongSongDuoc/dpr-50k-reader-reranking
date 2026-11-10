@@ -36,6 +36,7 @@ The local hybrid retrieves up to 2,000 candidates per retriever, normalizes pass
 | Per-question BM25+DPR candidates and scores | `results/v2_feedback/bm25_dpr_fusion_per_query.jsonl.gz` |
 | Kaggle Reader feedback run instructions | `docs/KAGGLE_VERSION2_RUN_GUIDE.md` |
 | Version 1 paper PDF | `paper/group5-dpr-paper.pdf` |
+| Editable Version 2 feedback draft (LaTeX source and verified tables) | `paper/v2_feedback_source/` |
 | Model/data artifact manifest | `weights/manifest.json` |
 
 The v2 Reader reruns will use FP16 on Kaggle T4 x2. TriviaQA's candidate budget is selected on its dev split; the full test is reserved for evaluation. The required TriviaQA Reader run also reports Exact Match from the Reader span head. Corrected CuratedTREC Reader metrics and final author contributions will be added after the Kaggle outputs and verified member roles are available.
