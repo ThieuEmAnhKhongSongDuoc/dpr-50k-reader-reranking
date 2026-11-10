@@ -1,0 +1,76 @@
+{
+  "status": "corrected first-stage and hybrid results; Reader feedback runs pending",
+  "corpus": {
+    "passages": 50000,
+    "sample": "reservoir sampling over complete DPR psgs_w100 source",
+    "seed": 12345
+  },
+  "tests": {
+    "datasets": [
+      "NQ",
+      "TriviaQA",
+      "WebQuestions",
+      "CuratedTREC",
+      "SQuAD 1.1"
+    ],
+    "questions": 28219
+  },
+  "curatedtrec_matcher": "DPR regex_match from dpr/data/qa_validation.py",
+  "hybrid": {
+    "bm25": "Lucene 8.11.2; EnglishAnalyzer; k1=0.9; b=0.4",
+    "dpr": "official DPR Multi; FAISS IndexFlatIP",
+    "candidate_k_per_method": 2000,
+    "score": "BM25(q,p) + 1.1 * DPR dot product",
+    "final_k": 100,
+    "id_normalization": "Lucene numeric IDs mapped to wiki:<id>"
+  },
+  "per_query_artifacts": {
+    "fusion_rows": 28219,
+    "fusion_candidates_per_query": 100,
+    "trec_rows": 694,
+    "fields": [
+      "query_id",
+      "passage_id",
+      "score",
+      "answer_hit"
+    ]
+  },
+  "files": {
+    "coverage.json": {
+      "bytes": 1228,
+      "sha256": "4d5f1103d03ddf9a9ae4220a1282e756eb889a70aedebf3a75c3248c2da40fd9"
+    },
+    "lucene_bm25.json": {
+      "bytes": 2046,
+      "sha256": "065d476c7abd6a2e2b8326ab23c014c2800130423961fa42af41c21709af21e9"
+    },
+    "dpr_multi.json": {
+      "bytes": 2165,
+      "sha256": "92b1db294d9998698b18c6ef67b2d3b6f396dc679dff42513742aaf871792489"
+    },
+    "dpr_single_nq.json": {
+      "bytes": 2172,
+      "sha256": "82ca22a97da9db87dea925e858f1e00554f098df6a4f97a1899a7a6bbb2b071a"
+    },
+    "bm25_dpr_fusion.json": {
+      "bytes": 2052,
+      "sha256": "80b03ffdb35c13769f0b7c1a61da1a488a221f9bd1a3b9fa4dde61ea6e7daf1d"
+    },
+    "bm25_dpr_fusion_per_query.jsonl.gz": {
+      "bytes": 85692194,
+      "sha256": "bae8dad811141f8d361062f02010cac4e05a2648d8f32ab42f5e063f8f8f9a1a"
+    },
+    "per_query/curatedtrec_bm25.jsonl.gz": {
+      "bytes": 889002,
+      "sha256": "65248f11425b86040de28c33725d138fdf654bc42182ef24ee4b472139bf18de"
+    },
+    "per_query/curatedtrec_dpr_multi.jsonl.gz": {
+      "bytes": 1150431,
+      "sha256": "6264001a0bd7725046bdd2ed464ea1e061ecf3ee1a7db5c5a9f81179878d6dc6"
+    },
+    "per_query/curatedtrec_dpr_single_nq.jsonl.gz": {
+      "bytes": 1151578,
+      "sha256": "b272484deaffddf8e9bb7f60004f1ccb5a0b7e253944e4033fefa05afad8867a"
+    }
+  }
+}
