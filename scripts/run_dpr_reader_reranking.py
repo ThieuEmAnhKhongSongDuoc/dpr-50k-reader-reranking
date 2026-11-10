@@ -120,6 +120,7 @@ def score_candidates(reader, tensorizer, question, candidate_ids, passages, batc
     ranked = []
     best_relevance = None
     best_answer = {"text": "", "passage_id": None, "span_score": None}
+    span_predictions = {}
     reader.eval()
     with torch.inference_mode():
         for start in range(0, len(candidate_ids), batch_size):
@@ -149,8 +150,6 @@ def score_candidates(reader, tensorizer, question, candidate_ids, passages, batc
             end_cpu = end_logits[:, 0].float().cpu()
             input_cpu = input_ids[:, 0].cpu()
             for offset_in_batch, (pid, score) in enumerate(zip(ids, scores)):
-                if best_relevance is not None and score <= best_relevance:
-                    continue
                 sequence_ids = input_cpu[offset_in_batch].tolist()
                 try:
                     valid_length = sequence_ids.index(tensorizer.get_pad_id())
@@ -158,6 +157,7 @@ def score_candidates(reader, tensorizer, question, candidate_ids, passages, batc
                     valid_length = len(sequence_ids)
                 passage_offset = pairs[offset_in_batch][2]
                 if valid_length <= passage_offset:
+                    span_predictions[pid] = {"text": "", "span_score": None}
                     continue
                 ctx_ids = sequence_ids[passage_offset:valid_length]
                 spans = get_best_spans(
@@ -170,17 +170,21 @@ def score_candidates(reader, tensorizer, question, candidate_ids, passages, batc
                     relevance_score=float(score),
                     top_spans=1,
                 )
-                best_relevance = float(score)
-                if spans:
+                predicted_text = spans[0].prediction_text if spans else ""
+                predicted_span_score = float(spans[0].span_score) if spans else None
+                span_predictions[pid] = {
+                    "text": predicted_text,
+                    "span_score": predicted_span_score,
+                }
+                if best_relevance is None or float(score) > best_relevance:
+                    best_relevance = float(score)
                     best_answer = {
-                        "text": spans[0].prediction_text,
+                        "text": predicted_text,
                         "passage_id": str(pid),
-                        "span_score": float(spans[0].span_score),
+                        "span_score": predicted_span_score,
                     }
-                else:
-                    best_answer = {"text": "", "passage_id": str(pid), "span_score": None}
     ranked.sort(key=lambda item: item[1], reverse=True)
-    return ranked, best_answer
+    return ranked, best_answer, span_predictions
 
 
 def normalized_phrase(text, tokenizer):
@@ -313,7 +317,7 @@ def main():
         for q_idx, (question, answer_list, (candidate_ids, _scores)) in enumerate(
             zip(questions, answers, retrieved), start=1
         ):
-            reranked, answer_prediction = score_candidates(
+            reranked, answer_prediction, span_predictions = score_candidates(
                 reader, reader_tensorizer, question, candidate_ids, passages,
                 args.reader_batch_size, reader_cfg.device, args.reader_precision, args.max_answer_length,
             )
@@ -322,12 +326,19 @@ def main():
             for rank, (pid, score, retriever_rank) in enumerate(reranked, start=1):
                 passage_text = passages[pid][1]
                 answer_hit = passage_has_answer(answer_list, passage_text, answer_matcher, dataset_key)
+                span_prediction = span_predictions.get(pid, {"text": "", "span_score": None})
+                candidate_em = None if match_type == "regex" else any(
+                    exact_match_score(span_prediction["text"], str(answer)) for answer in answer_list
+                )
                 candidate_results.append({
                     "rank": rank,
                     "retriever_rank": retriever_rank,
                     "passage_id": str(pid),
                     "reader_relevance_score": score,
                     "answer_hit": answer_hit,
+                    "reader_answer": span_prediction["text"],
+                    "reader_answer_span_score": span_prediction["span_score"],
+                    "reader_exact_match": candidate_em,
                 })
                 if answer_hit and first_hit is None:
                     first_hit = rank

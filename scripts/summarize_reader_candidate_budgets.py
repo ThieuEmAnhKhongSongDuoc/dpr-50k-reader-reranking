@@ -20,6 +20,8 @@ def open_rows(path):
 
 def summarize(rows, budgets):
     counts = {budget: {cutoff: 0 for cutoff in (1, 5, 20, 100)} for budget in budgets}
+    exact_match_counts = {budget: 0 for budget in budgets}
+    exact_match_available = {budget: False for budget in budgets}
     n = 0
     for row in rows:
         n += 1
@@ -29,6 +31,9 @@ def summarize(rows, budgets):
                 if int(candidate["retriever_rank"]) <= budget
             ]
             candidates.sort(key=lambda candidate: float(candidate["reader_relevance_score"]), reverse=True)
+            if candidates and candidates[0].get("reader_exact_match") is not None:
+                exact_match_available[budget] = True
+                exact_match_counts[budget] += int(bool(candidates[0]["reader_exact_match"]))
             first_hit = next(
                 (rank for rank, candidate in enumerate(candidates, 1) if candidate["answer_hit"]),
                 None,
@@ -46,6 +51,8 @@ def summarize(rows, budgets):
                 str(cutoff): hits / n if n else 0.0
                 for cutoff, hits in counts[budget].items()
             },
+            "exact_match_count": exact_match_counts[budget] if exact_match_available[budget] else None,
+            "exact_match_accuracy": exact_match_counts[budget] / n if n and exact_match_available[budget] else None,
         }
         for budget in budgets
     }
@@ -55,6 +62,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True, help="Reader per-query JSONL or JSONL.GZ")
     parser.add_argument("--budgets", type=int, nargs="+", default=[100, 200])
+    parser.add_argument("--split", choices=("development", "test"), default="development",
+                        help="Label the split represented in the input per-query file")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if any(budget < 1 for budget in args.budgets):
@@ -76,8 +85,9 @@ def main():
         "method": "DPR Reader relevance-head reranking",
         "source_per_query_file": str(args.input),
         "selection_split": "development",
+        "evaluation_split": args.split,
         "budget_selection_uses_test": False,
-        "test_results": summarize(rows, args.budgets),
+        "results_by_budget": summarize(rows, args.budgets),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2), encoding="utf-8")
