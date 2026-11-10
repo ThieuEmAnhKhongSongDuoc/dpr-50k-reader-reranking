@@ -49,7 +49,7 @@ print('Official TriviaQA dev QA:', dev_qa, '| bytes:', dev_qa.stat().st_size)
 
 ## 3. Select candidate budget on TriviaQA dev
 
-Run K=200 once over the full official DPR TriviaQA dev QA split. The saved per-query file contains each retrieved passage's original DPR rank, Reader relevance score, and Reader span prediction. The summarizer computes K=100 and K=200 from the same forward pass by restricting K=100 to the original DPR top 100 before sorting with Reader scores. Select the candidate budget using development Hit@20 only.
+Run K=200 once over the full official DPR TriviaQA dev QA split. The saved per-query file contains each candidate's original DPR rank, Reader relevance score, and answer-hit label. The summarizer computes K=100 and K=200 from the same pass by restricting K=100 to the original DPR top 100 before sorting with Reader scores. Select the candidate budget using development Hit@20 only.
 
 ~~~python
 import subprocess, sys
@@ -83,6 +83,19 @@ subprocess.run([
 
 Choose between the two candidate budgets already used in the project (K=100 and K=200) from the dev comparison using the predeclared primary cutoff (Hit@20); do not select K from test results. Keep the output JSON and per-query gzip file.
 
+Set the test budget from the saved development comparison. Ties at Hit@20 are resolved in favor of the smaller K.
+
+~~~python
+import json
+dev_summary = json.loads(Path('/kaggle/working/trivia_dev_budget_selection.json').read_text())
+budget_rows = dev_summary['results_by_budget']
+TRIVIA_TEST_K = min(
+    (int(k) for k in budget_rows),
+    key=lambda k: (-budget_rows[str(k)]['top_k_accuracy']['20'], k),
+)
+print('Development-selected TriviaQA test K:', TRIVIA_TEST_K)
+~~~
+
 ## 4. Run corrected CuratedTREC and complete TriviaQA K=100
 
 After recording the dev-selected K, run the requested full-test checks. These jobs can be run in separate Kaggle versions if the session approaches its time limit.
@@ -106,7 +119,7 @@ subprocess.run([
 ~~~
 
 ~~~python
-trivia_test_k200_output = Path('/kaggle/working/trivia_reader_k200_fp16.json')
+trivia_test_output = Path(f'/kaggle/working/trivia_reader_k{TRIVIA_TEST_K}_fp16.json')
 subprocess.run([
     sys.executable, str(PROJECT / 'scripts' / 'run_dpr_reader_reranking.py'),
     '--reader-checkpoint', str(DATA / 'reader.cp'),
@@ -118,34 +131,35 @@ subprocess.run([
     '--reader-gpus', '2',
     '--reader-batch-size', '16',
     '--reader-precision', 'fp16',
-    '--top-docs', '200',
-    '--output', str(trivia_test_k200_output),
+    '--top-docs', str(TRIVIA_TEST_K),
+    '--output', str(trivia_test_output),
 ], check=True)
 ~~~
 
 ~~~python
-trivia_test_per_query = trivia_test_k200_output.with_name(
-    trivia_test_k200_output.stem + '_per_query'
-) / 'trivia_test.jsonl.gz'
-subprocess.run([
-    sys.executable, str(PROJECT / 'scripts' / 'summarize_reader_candidate_budgets.py'),
-    '--input', str(trivia_test_per_query),
-    '--budgets', '100', '200',
-    '--split', 'test',
-    '--output', '/kaggle/working/trivia_test_budget_metrics.json',
-], check=True)
+if TRIVIA_TEST_K == 200:
+    trivia_test_per_query = trivia_test_output.with_name(
+        trivia_test_output.stem + '_per_query'
+    ) / 'trivia_test.jsonl.gz'
+    subprocess.run([
+        sys.executable, str(PROJECT / 'scripts' / 'summarize_reader_candidate_budgets.py'),
+        '--input', str(trivia_test_per_query),
+        '--budgets', '100', '200',
+        '--split', 'test',
+        '--output', '/kaggle/working/trivia_test_budget_metrics.json',
+    ], check=True)
 ~~~
 
 ## 5. Save and bring outputs back
 
-For the full TriviaQA test, score K=200 once, then derive exact K=100 and K=200 answer-hit and Reader span Exact Match results from the saved candidate-level scores. K=100 is the required completed run; use the dev result to decide which budget is primary. This avoids a second Reader forward pass. The summary script uses original DPR ranks to reconstruct each budget. CuratedTREC Exact Match is omitted because its gold answers are regex patterns.
+The TriviaQA test Reader run uses the budget selected on dev, and its aggregate JSON reports answer-hit accuracy and span Exact Match at that budget. If dev selects K=200, the per-query candidate scores also derive the required K=100 answer-hit metrics without another Reader pass. CuratedTREC Exact Match is omitted because its gold answers are regex patterns.
 
 At the end of a successful run, download these from the Kaggle notebook's Output tab:
 
 - trivia_dev_budget_selection.json
 - curatedtrec_reader_regex_k200_fp16.json and its per-query gzip file
-- trivia_reader_k200_fp16.json and its per-query gzip file
-- trivia_test_budget_metrics.json (K=100 and K=200 metrics derived from one run)
+- trivia_reader_k{selected K}_fp16.json and its per-query gzip file
+- trivia_test_budget_metrics.json only if dev selected K=200
 - the TriviaQA dev K=200 per-query gzip file, which audits K selection
 
 Do not reuse the previous CuratedTREC Reader aggregate: it used string matching and must be replaced.
