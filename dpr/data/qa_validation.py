@@ -14,7 +14,7 @@ import logging
 import string
 import unicodedata
 import zlib
-from functools import partial
+from functools import lru_cache, partial
 from multiprocessing import Pool as ProcessPool
 from typing import Tuple, List, Dict
 
@@ -201,13 +201,19 @@ def has_answer(answers, text, tokenizer, match_type) -> bool:
     return False
 
 
+@lru_cache(maxsize=8192)
+def _compile_regex(pattern):
+    """Cache compiled answer regexes; CuratedTREC reuses them across passages."""
+    try:
+        return re.compile(pattern, flags=re.IGNORECASE + re.UNICODE + re.MULTILINE)
+    except BaseException:
+        return None
+
+
 def regex_match(text, pattern):
     """Test if a regex pattern is contained within a text."""
-    try:
-        pattern = re.compile(pattern, flags=re.IGNORECASE + re.UNICODE + re.MULTILINE)
-    except BaseException:
-        return False
-    return pattern.search(text) is not None
+    compiled = _compile_regex(pattern)
+    return compiled is not None and compiled.search(text) is not None
 
 
 # function for the reader model answer validation
