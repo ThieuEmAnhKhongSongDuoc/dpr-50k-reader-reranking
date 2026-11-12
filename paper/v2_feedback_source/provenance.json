@@ -2,8 +2,8 @@
   "authors": [
     "Hồ Thành Tài",
     "Lê Trần Bình An",
-    "Phan Ba Song Toàn",
-    "Tran Quang Long",
+    "Phan Bá Song Toàn",
+    "Trần Quang Long",
     "Trịnh Minh Bảo Trân"
   ],
   "group": "Group 5",
@@ -95,7 +95,7 @@
     "reason": "Earlier run joined bare Lucene IDs to wiki:-prefixed DPR IDs without normalization. The corrected rerun normalizes IDs and is recorded under bm25_dpr_fusion.json."
   },
   "feedback_status": {
-    "status": "Reader K=100 FP16 runs complete; final author contributions pending verified member roles",
+    "status": "Reader K=100 FP16 runs complete; author contributions included in the Version 2 manuscript",
     "corrected_curatedtrec_regex": true,
     "hybrid_full_test_complete": true,
     "hybrid_per_query_rows": 28219,
@@ -105,7 +105,7 @@
       "dev": "1105/8837 = 12.50%",
       "test": "1419/11313 = 12.54%"
     },
-    "author_contributions": "awaiting verified roles for all five members"
+    "author_contributions": "included for all five members in the Version 2 manuscript"
   },
   "reader_outputs": {
     "curatedtrec_reader_regex_k100_fp16.json": {

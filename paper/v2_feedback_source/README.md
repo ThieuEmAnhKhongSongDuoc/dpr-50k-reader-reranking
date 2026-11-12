@@ -7,8 +7,8 @@ Authors, in the requested order:
 
 1. Hồ Thành Tài
 2. Lê Trần Bình An
-3. Phan Ba Song Toàn
-4. Tran Quang Long
+3. Phan Bá Song Toàn
+4. Trần Quang Long
 5. Trịnh Minh Bảo Trân
 
 The author block uses the supplied FPT University affiliation and omits the
@@ -60,8 +60,9 @@ names and SHA256 hashes, the sampled corpus digest, and resource identifiers.
   JSONL.GZ files are stored under `results/v2_feedback/per_query/`.
   `python build_tables.py` regenerates the reranking and span-EM tables without
   running inference.
-- The current PDF in `build/` predates the Reader feedback results and must be
-  rebuilt before submission.
+- The compiled Version 2 PDF is included as `../group5-dpr-paper-v2.pdf`.
+  The Version 1 PDF remains at `../group5-dpr-paper.pdf`. Rebuild from
+  `main.tex` after any future source changes.
 
 The large corpus, models, API tokens, virtual environments, and Kaggle
 credentials are deliberately not in the source archive.
