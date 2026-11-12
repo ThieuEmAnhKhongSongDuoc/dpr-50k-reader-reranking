@@ -1,0 +1,17 @@
+\section{Introduction}
+Open-domain question answering depends on finding useful evidence in a large text collection. A retrieval system may identify a passage that discusses the topic of a question without placing a passage containing its answer near the top. This distinction becomes important when a lightweight first-stage retriever is followed by a more expensive neural reader. A system can lose answer-bearing evidence because the corpus omits it, because retrieval misses it, or because the final ranking places it below the evaluation cutoff.
+
+Dense Passage Retrieval (DPR) provides a dual-encoder implementation and public model and data resources for studying this pipeline~\cite{dpr,dprcode}. Its original evaluation searches a Wikipedia collection of approximately 21 million passages. Reusing this full setting involves substantial storage, passage encoding, and indexing costs. A smaller collection makes an experimental pipeline more accessible, but also changes the task: it removes many possible answer passages along with many distractors. Results from a reduced collection therefore cannot be read as scores obtained under the original paper's conditions.
+
+Our study fixes a reservoir sample of 50,000 passages and investigates how existing components behave under that constraint. We use exact inner-product search and retain the pretrained DPR weights. We then add a second stage that scores each retrieved question--passage pair with the relevance head of the official extractive DPR Reader. This setup permits a practical investigation of ranking improvements without attributing pretrained model training to the current experiments.
+
+Three research questions guide the analysis:
+\begin{enumerate}
+\item How do corpus coverage and full-test answer-hit scores change when CuratedTREC answers are matched with the official DPR regular-expression evaluator?
+\item How do the corrected BM25, DPR, and score-fusion baselines compare on the same 50,000-passage corpus?
+\item What answer-hit and end-to-end span Exact Match results does the official Reader produce on the required TriviaQA evaluation at the requested $K=100$ budget after first running TriviaQA development?
+\end{enumerate}
+
+The contribution is an empirical feedback revision with explicit scope. First, we apply DPR's required CuratedTREC regex matching consistently to corpus coverage, BM25, DPR, and Reader evaluation. Second, we repair passage-ID normalization in the BM25+DPR fusion and report the corrected full-test baseline with per-query scores. Third, we evaluate the Reader at the requested $K=100$ setting, run TriviaQA development before the test, and report span Exact Match from the Reader's answer head. The released code preserves question and candidate identifiers, retriever ranks, Reader scores, and span predictions for audit.
+
+The work does not introduce a new neural architecture, a new loss, or a new indexing algorithm. Its value is in the measured behavior, transparent implementation choices, and the separation of corpus and ranking limitations. These distinctions are necessary when presenting a small-corpus reproduction as scientific evidence rather than treating it as a direct substitute for the original benchmark.

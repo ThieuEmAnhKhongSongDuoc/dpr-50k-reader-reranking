@@ -1,0 +1,38 @@
+{
+  "corpus_file": "D:\\DPR-data\\wikipedia\\psgs_w100_sample_50000.tsv",
+  "qa_directory": "data\\raw\\downloads\\data\\retriever\\qas",
+  "matching": "DPR SimpleTokenizer token matching for string answers; CuratedTREC uses dpr.data.qa_validation.regex_match with the official regex match_type",
+  "coverage_definition": "fraction of test questions with any answer string appearing in at least one corpus passage",
+  "corpus_passages": 50000,
+  "total_questions": 28219,
+  "questions_without_valid_answer_string": 0,
+  "covered_questions": 18534,
+  "overall_coverage": 0.6567915234416528,
+  "per_dataset": {
+    "nq": {
+      "questions": 3610,
+      "covered_questions": 2192,
+      "coverage": 0.607202216066482
+    },
+    "trivia": {
+      "questions": 11313,
+      "covered_questions": 8233,
+      "coverage": 0.7277468399186776
+    },
+    "webq": {
+      "questions": 2032,
+      "covered_questions": 1388,
+      "coverage": 0.6830708661417323
+    },
+    "curatedtrec": {
+      "questions": 694,
+      "covered_questions": 609,
+      "coverage": 0.877521613832853
+    },
+    "squad1": {
+      "questions": 10570,
+      "covered_questions": 6112,
+      "coverage": 0.578240302743614
+    }
+  }
+}

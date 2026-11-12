@@ -1,0 +1,38 @@
+{
+  "method": "DPR Multi + FAISS IndexFlatIP top-k + official DPR Reader relevance-head reranking",
+  "retriever_checkpoint": "/kaggle/input/datasets/hothanhtai/dpr-50k-rerank-inputs/retriever.cp",
+  "reader_checkpoint": "/kaggle/input/datasets/hothanhtai/dpr-50k-rerank-inputs/reader.cp",
+  "passage_vectors": "/kaggle/input/datasets/hothanhtai/dpr-50k-rerank-inputs/passage_vectors.pkl",
+  "corpus": "/kaggle/input/datasets/hothanhtai/dpr-50k-rerank-inputs/wiki50k.tsv",
+  "corpus_size": 50000,
+  "faiss_type": "IndexFlatIP",
+  "reader_top_candidates": 100,
+  "reader_batch_size": 16,
+  "reader_gpus": 2,
+  "reader_precision": "fp16",
+  "test_results": {
+    "trivia_dev": {
+      "questions": 8837,
+      "candidate_k": 100,
+      "hits": {
+        "1": 1632,
+        "5": 2773,
+        "20": 3681,
+        "100": 4279
+      },
+      "top_k_accuracy": {
+        "1": 0.18467805816453547,
+        "5": 0.3137942740749123,
+        "20": 0.4165440760439063,
+        "100": 0.48421409980762703
+      },
+      "reranking_seconds": 6367.1,
+      "match_type": "string",
+      "exact_match_count": 1105,
+      "exact_match_accuracy": 0.1250424352155709,
+      "exact_match_note": "SQuAD-normalized exact match of the Reader span selected from its highest relevance-scoring candidate.",
+      "reader_precision": "fp16",
+      "per_query_results": "/kaggle/working/trivia_dev_reader_k100_fp16_per_query/trivia_dev.jsonl.gz"
+    }
+  }
+}

@@ -32,15 +32,20 @@ from dpr.data.reader_data import _concat_pair
 from dpr.indexer.faiss_indexers import DenseFlatIndexer
 from dpr.models import init_biencoder_components, init_reader_components
 from dpr.models.reader import _create_token_type_ids, _pad_to_len
+from dpr.data.reader_data import get_best_spans
+from dpr.data.qa_validation import exact_match_score
 from dpr.options import set_cfg_params_from_state, setup_cfg_gpu
 from dpr.utils.model_utils import get_model_obj, load_states_from_checkpoint
 from dpr.utils.tokenizers import SimpleTokenizer
+from evaluation_utils import answer_match_type, passage_has_answer, write_jsonl
 
 
-RETRIEVER_CHECKPOINT = ROOT / "artifacts" / "retriever.cp"
-PASSAGE_VECTORS = ROOT / "artifacts" / "passage_vectors.pkl"
-CORPUS = ROOT / "artifacts" / "wiki50k.tsv"
-QA_DIR = ROOT / "artifacts" / "qa"
+RETRIEVER_CHECKPOINT = Path(
+    r"D:\DPR-data\official_dpr\downloads\checkpoint\retriever\multiset\bert-base-encoder.cp"
+)
+PASSAGE_VECTORS = ROOT / "outputs" / "local_retrieval" / "paper_multi_50k_ctx_0"
+CORPUS = Path(r"D:\DPR-data\wikipedia\psgs_w100_sample_50000.tsv")
+QA_DIR = ROOT / "data" / "raw" / "downloads" / "data" / "retriever" / "qas"
 DEFAULT_RESULT = ROOT / "outputs" / "local_retrieval" / "paper_multi_50k_fulltest_reader_reranked.json"
 TEST_FILES = {
     "nq_test": "nq-test.csv",
@@ -49,6 +54,10 @@ TEST_FILES = {
     "curatedtrec_test": "curatedtrec-test.csv",
     "squad1_test": "squad1-test.csv",
 }
+DEV_FILES = {
+    "trivia_dev": Path("teacher_review_dev/downloads/data/retriever/qas/trivia-dev.csv"),
+}
+QA_FILES = {**TEST_FILES, **DEV_FILES}
 
 
 def load_qa(path):
@@ -103,11 +112,14 @@ def make_reader_pair(question, title, text, tensorizer):
     sequence, _ = _concat_pair(question_and_title, passage_tokens)
     sequence = _pad_to_len(sequence, tensorizer.get_pad_id(), tensorizer.max_length)
     token_types = _create_token_type_ids(sequence.unsqueeze(0), tensorizer.get_token_id("[SEP]"))[0]
-    return sequence, token_types
+    return sequence, token_types, question_and_title.size(0)
 
 
-def score_candidates(reader, tensorizer, question, candidate_ids, passages, batch_size, device):
+def score_candidates(reader, tensorizer, question, candidate_ids, passages, batch_size, device,
+                     precision="fp32", max_answer_length=30):
     ranked = []
+    best_relevance = None
+    best_answer = {"text": "", "passage_id": None, "span_score": None}
     reader.eval()
     with torch.inference_mode():
         for start in range(0, len(candidate_ids), batch_size):
@@ -119,9 +131,56 @@ def score_candidates(reader, tensorizer, question, candidate_ids, passages, batc
             input_ids = torch.stack([pair[0] for pair in pairs]).unsqueeze(1).to(device)
             token_types = torch.stack([pair[1] for pair in pairs]).unsqueeze(1).to(device)
             attention = input_ids.ne(tensorizer.get_pad_id()).long()
-            _start, _end, relevance = reader(input_ids, attention, token_types)
-            ranked.extend(zip(ids, relevance[:, 0].float().cpu().tolist()))
-    return [pid for pid, _score in sorted(ranked, key=lambda item: item[1], reverse=True)]
+            if precision == "fp16":
+                with torch.autocast(device_type="cuda", dtype=torch.float16):
+                    start_logits, end_logits, relevance = reader(input_ids, attention, token_types)
+            else:
+                start_logits, end_logits, relevance = reader(input_ids, attention, token_types)
+            scores = relevance[:, 0].float().cpu().tolist()
+            ranked.extend(
+                (pid, float(score), start + offset + 1)
+                for offset, (pid, score) in enumerate(zip(ids, scores))
+            )
+
+            # The DPR Reader's extractive head predicts a span from the highest
+            # relevance-ranked candidate. Keep the same candidate selection as
+            # the reranker, then use DPR's span decoding helper on that passage.
+            start_cpu = start_logits[:, 0].float().cpu()
+            end_cpu = end_logits[:, 0].float().cpu()
+            input_cpu = input_ids[:, 0].cpu()
+            for offset_in_batch, (pid, score) in enumerate(zip(ids, scores)):
+                if best_relevance is not None and score <= best_relevance:
+                    continue
+                sequence_ids = input_cpu[offset_in_batch].tolist()
+                try:
+                    valid_length = sequence_ids.index(tensorizer.get_pad_id())
+                except ValueError:
+                    valid_length = len(sequence_ids)
+                passage_offset = pairs[offset_in_batch][2]
+                if valid_length <= passage_offset:
+                    continue
+                ctx_ids = sequence_ids[passage_offset:valid_length]
+                spans = get_best_spans(
+                    tensorizer,
+                    start_cpu[offset_in_batch, passage_offset:valid_length].tolist(),
+                    end_cpu[offset_in_batch, passage_offset:valid_length].tolist(),
+                    ctx_ids,
+                    max_answer_length,
+                    passage_idx=0,
+                    relevance_score=float(score),
+                    top_spans=1,
+                )
+                best_relevance = float(score)
+                if spans:
+                    best_answer = {
+                        "text": spans[0].prediction_text,
+                        "passage_id": str(pid),
+                        "span_score": float(spans[0].span_score),
+                    }
+                else:
+                    best_answer = {"text": "", "passage_id": str(pid), "span_score": None}
+    ranked.sort(key=lambda item: item[1], reverse=True)
+    return ranked, best_answer
 
 
 def normalized_phrase(text, tokenizer):
@@ -147,10 +206,13 @@ def main():
     parser.add_argument("--query-batch-size", type=int, default=8)
     parser.add_argument("--reader-batch-size", type=int, default=4,
                         help="Candidate passages per cross-encoder forward pass; keep small on 4GB VRAM")
+    parser.add_argument("--reader-precision", choices=("fp32", "fp16"), default="fp32",
+                        help="Reader inference precision; fp16 uses CUDA autocast")
+    parser.add_argument("--max-answer-length", type=int, default=30)
     parser.add_argument("--reader-gpus", type=int, default=1,
                         help="Number of visible GPUs for DPR Reader DataParallel inference (e.g. 2 for Kaggle T4 x2)")
-    parser.add_argument("--datasets", nargs="+", choices=list(TEST_FILES), default=list(TEST_FILES),
-                        help="Test splits to run; run one split per Kaggle session if needed")
+    parser.add_argument("--datasets", nargs="+", choices=list(QA_FILES), default=list(TEST_FILES),
+                        help="Evaluation splits; use trivia_dev to select candidate budget without test leakage")
     parser.add_argument("--max-questions", type=int, default=0,
                         help="Optional pipeline-smoke cap per split; do not use capped test scores for model selection")
     args = parser.parse_args()
@@ -162,6 +224,8 @@ def main():
         parser.error(
             f"Requested --reader-gpus {args.reader_gpus}, but only {available_gpus} CUDA GPU(s) are available"
         )
+    if args.reader_precision == "fp16" and not torch.cuda.is_available():
+        parser.error("--reader-precision fp16 requires a CUDA GPU")
 
     for required in (args.reader_checkpoint, args.retriever_checkpoint, args.passage_vectors, args.corpus):
         if not required.is_file():
@@ -228,8 +292,12 @@ def main():
 
     results = {}
     for dataset_key in args.datasets:
-        file_name = TEST_FILES[dataset_key]
-        questions, answers = load_qa(args.qa_dir / file_name)
+        if dataset_key in DEV_FILES:
+            qa_path = ROOT / "data" / "raw" / DEV_FILES[dataset_key]
+        else:
+            file_name = TEST_FILES[dataset_key]
+            qa_path = args.qa_dir / file_name
+        questions, answers = load_qa(qa_path)
         if args.max_questions:
             questions, answers = questions[: args.max_questions], answers[: args.max_questions]
         query_vectors = encode_questions(
@@ -238,35 +306,71 @@ def main():
         candidate_k = min(args.top_docs, len(passages))
         retrieved = indexer.search_knn(query_vectors, candidate_k)
         hits = {1: 0, 5: 0, 20: 0, 100: 0}
+        exact_match_hits = 0
+        per_query = []
+        match_type = answer_match_type(dataset_key)
         started = time.perf_counter()
         for q_idx, (question, answer_list, (candidate_ids, _scores)) in enumerate(
             zip(questions, answers, retrieved), start=1
         ):
-            reranked_ids = score_candidates(
+            reranked, answer_prediction = score_candidates(
                 reader, reader_tensorizer, question, candidate_ids, passages,
-                args.reader_batch_size, reader_cfg.device,
+                args.reader_batch_size, reader_cfg.device, args.reader_precision, args.max_answer_length,
             )
-            answer_phrases = [normalized_phrase(a, answer_matcher) for a in answer_list]
             first_hit = None
-            for rank, pid in enumerate(reranked_ids):
-                passage_text = normalized_passages[pid]
-                if any(phrase and phrase in passage_text for phrase in answer_phrases):
+            candidate_results = []
+            for rank, (pid, score, retriever_rank) in enumerate(reranked, start=1):
+                passage_text = passages[pid][1]
+                answer_hit = passage_has_answer(answer_list, passage_text, answer_matcher, dataset_key)
+                candidate_results.append({
+                    "rank": rank,
+                    "retriever_rank": retriever_rank,
+                    "passage_id": str(pid),
+                    "reader_relevance_score": score,
+                    "answer_hit": answer_hit,
+                })
+                if answer_hit and first_hit is None:
                     first_hit = rank
-                    break
             if first_hit is not None:
                 for cutoff in hits:
-                    if first_hit < cutoff:
+                    if first_hit <= cutoff:
                         hits[cutoff] += 1
+            em_computed = match_type != "regex"
+            em_hit = any(exact_match_score(answer_prediction["text"], str(a)) for a in answer_list) if em_computed else None
+            if em_hit:
+                exact_match_hits += 1
+            per_query.append({
+                "query_id": f"{dataset_key}:{q_idx - 1}",
+                "query_index": q_idx - 1,
+                "dataset": dataset_key,
+                "question": question,
+                "answers": [str(a) for a in answer_list],
+                "match_type": match_type,
+                "first_answer_rank": first_hit,
+                "reader_answer": answer_prediction["text"],
+                "reader_answer_passage_id": answer_prediction["passage_id"],
+                "reader_answer_span_score": answer_prediction["span_score"],
+                "exact_match": em_hit,
+                "candidates": candidate_results,
+            })
             if q_idx % 500 == 0:
                 print(f"{dataset_key}: reranked {q_idx}/{len(questions)}", flush=True)
 
         elapsed = time.perf_counter() - started
+        per_query_path = args.output.with_name(args.output.stem + "_per_query") / f"{dataset_key}.jsonl.gz"
+        write_jsonl(per_query_path, per_query)
         results[dataset_key] = {
             "questions": len(questions),
             "candidate_k": candidate_k,
             "hits": hits,
             "top_k_accuracy": {str(k): hits[k] / len(questions) for k in hits},
             "reranking_seconds": round(elapsed, 2),
+            "match_type": match_type,
+            "exact_match_count": exact_match_hits if match_type != "regex" else None,
+            "exact_match_accuracy": exact_match_hits / len(questions) if match_type != "regex" else None,
+            "exact_match_note": "CuratedTREC is excluded because its DPR answers are regex patterns, not literal gold answer strings." if match_type == "regex" else "SQuAD-normalized exact match of the Reader span selected from its highest relevance-scoring candidate.",
+            "reader_precision": args.reader_precision,
+            "per_query_results": str(per_query_path),
         }
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps({
@@ -280,6 +384,7 @@ def main():
             "reader_top_candidates": args.top_docs,
             "reader_batch_size": args.reader_batch_size,
             "reader_gpus": args.reader_gpus,
+            "reader_precision": args.reader_precision,
             "test_results": results,
         }, indent=2), encoding="utf-8")
         print(f"{dataset_key}: {results[dataset_key]}", flush=True)

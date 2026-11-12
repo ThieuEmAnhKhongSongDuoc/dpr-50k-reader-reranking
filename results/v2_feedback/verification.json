@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "baseline_test_questions": 28219,
+  "corpus_passages": 50000,
+  "covered_questions": 18534,
+  "overall_coverage": 0.6567915234416528,
+  "curatedtrec_coverage": 0.877521613832853,
+  "fusion_per_query_rows": 28219,
+  "reader_status": "passed",
+  "reader_files_missing": [],
+  "scope": "Saved-result and metadata validation only; no model execution."
+}

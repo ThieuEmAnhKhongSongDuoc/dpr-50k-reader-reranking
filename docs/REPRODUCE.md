@@ -24,17 +24,19 @@ For a small download containing only the full QA tests:
 
 ## Kaggle inference
 
-Open notebooks/02_kaggle_reranking.ipynb, enable Internet and GPU T4 x2,
-and select one dataset per run. This notebook is an unexecuted recipe.
-Original completed runs are recorded under results/raw and results/logs.
-With PyTorch installed for the runtime:
+The completed teacher-feedback Reader runs and their per-question outputs are
+saved under `results/v2_feedback/`. The earlier unexecuted K=200 notebook recipe
+is not included. To rerun inference on Kaggle, attach the corpus, vectors,
+checkpoints, and QA files, choose GPU T4 x2, and use `scripts/run_dpr_reader_reranking.py`.
+With PyTorch installed for the runtime, for example:
 
     python -m pip install -r requirements-rerank.txt
-    python scripts/run_dpr_reader_reranking.py --reader-checkpoint artifacts/reader.cp --retriever-checkpoint artifacts/retriever.cp --passage-vectors artifacts/passage_vectors.pkl --corpus artifacts/wiki50k.tsv --qa-dir artifacts/qa --datasets nq_test --top-docs 200 --reader-batch-size 16 --query-batch-size 8 --reader-gpus 2 --output outputs/reproduced/nq200.json
+    python scripts/run_dpr_reader_reranking.py --reader-checkpoint artifacts/reader.cp --retriever-checkpoint artifacts/retriever.cp --passage-vectors artifacts/passage_vectors.pkl --corpus artifacts/wiki50k.tsv --qa-dir artifacts/qa --datasets trivia_dev --top-docs 100 --reader-batch-size 16 --query-batch-size 8 --reader-gpus 2 --reader-precision fp16 --output outputs/reproduced/trivia_dev_reader.json
 
-Replace nq_test with curatedtrec_test or trivia_test. For K=100 use
---top-docs 100 and another output filename. Full K=100 references exist
-for NQ and CuratedTREC only. Gold answers are used after ranking for evaluation.
+Run TriviaQA development before its test split. Replace `trivia_dev` with
+`curatedtrec_test` or `trivia_test` for the corresponding full test run. The
+saved Reader outputs retain per-query candidate IDs and scores. Gold answers
+are used only after ranking for evaluation.
 
 ## First-stage DPR
 
@@ -56,5 +58,7 @@ Settings: k1=0.9, b=0.4, EnglishAnalyzer, title plus passage body indexing.
 
     python scripts/measure_answer_passage_coverage.py --corpus artifacts/wiki50k.tsv --qa-dir artifacts/qa --output outputs/reproduced/coverage.json
 
-Keep corpus, tests, checkpoint and matcher fixed. Candidate K=200 was
-exploratory, not dev-selected. These runs are inference, not training.
+Keep the corpus, tests, checkpoints and matcher fixed. The feedback runs use
+development before test and the requested K=100 candidate budget. These runs
+are inference, not training. The repository does not claim an alternative-K
+sweep or selection among multiple candidate budgets.

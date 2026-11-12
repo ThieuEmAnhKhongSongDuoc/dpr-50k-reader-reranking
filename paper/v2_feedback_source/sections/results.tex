@@ -1,0 +1,20 @@
+\section{Results}
+\subsection{Full-Test Lexical, Dense, and Hybrid References}
+Table~\ref{tab:baselines} reports Hit@20 and Hit@100 over all 28,219 test questions. DPR Multi scores exceed Lucene BM25 at both cutoffs on all five benchmarks. The corrected BM25+DPR fusion is slightly higher than DPR Multi at both cutoffs on each test set. The fusion uses the raw weighted sum specified in Section~\ref{sec:hybrid}; these values are specific to that score scale, coefficient, and candidate union.
+
+\input{tables/baselines}
+
+\subsection{Reader Reranking and Span Exact Match}
+The official DPR Reader was run at $K=100$ in FP16 on the full CuratedTREC and TriviaQA test sets. TriviaQA development was run first at the same budget. Table~\ref{tab:reranking} reports answer-containing-passage Hit@k before and after Reader reranking; CuratedTREC uses DPR's official regex matching. Reader reranking increases Hit@20 from 51.15\% to 55.62\% on CuratedTREC and from 33.60\% to 41.35\% on TriviaQA. At Hit@100, CuratedTREC remains at 68.01\%, as reranking changes the order of the same 100 candidates rather than adding candidates. The TriviaQA Hit@100 values are 48.04\% for DPR Multi and 48.06\% after Reader reranking.
+
+\input{tables/reranking}
+\input{tables/span_em}
+
+On TriviaQA development, Reader span Exact Match is 12.50\% (1,105/8,837); on the held-out test set it is 12.54\% (1,419/11,313). Answer-containing-passage Hit@k and span Exact Match measure different outcomes: retrieving an answer-bearing passage does not guarantee that the Reader predicts the exact answer span. Per-query files retain all 100 candidate passage IDs, retriever ranks, Reader relevance scores, answer-hit labels, and span predictions for audit.
+
+\subsection{Corrected CuratedTREC Evaluation and Corpus Coverage}
+Using DPR's official regular-expression matching changes CuratedTREC corpus coverage from the previous literal-string count of 217 to 609 of 694 questions (87.75\%). The earlier 31.27\% coverage estimate and the interpretation based on it are withdrawn. Across all five tests, 18,534 of 28,219 questions have an answer match somewhere in the 50,000-passage corpus (65.68\%).
+
+\input{tables/datasets}
+
+On the full CuratedTREC test, corrected Hit@20/Hit@100 is 40.92\%/55.48\% for BM25, 43.52\%/63.83\% for the NQ-Single transfer checkpoint, 51.15\%/68.01\% for DPR Multi, 55.62\%/68.01\% after Reader reranking, and 52.16\%/68.16\% for BM25+DPR. Reader reranking therefore improves the top-20 answer-hit rate by 4.47 percentage points over DPR Multi, while the top-100 hit count stays fixed at 472/694 because the candidate set is unchanged. Among the 609 covered questions, DPR Multi retrieves a matching answer in its top 20 for 58.29\%; BM25+DPR reaches 59.44\%. At top 100, the corresponding conditional values are 77.50\% and 77.67\%. These conditional rates use only covered questions and are reported alongside, not instead of, full-test accuracy.

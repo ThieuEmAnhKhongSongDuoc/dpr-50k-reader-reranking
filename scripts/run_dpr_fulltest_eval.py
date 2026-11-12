@@ -27,6 +27,7 @@ from dpr.indexer.faiss_indexers import DenseFlatIndexer
 from dpr.models import init_biencoder_components
 from dpr.options import set_cfg_params_from_state, setup_cfg_gpu
 from dpr.utils.model_utils import get_model_obj, load_states_from_checkpoint, setup_for_distributed_mode
+from evaluation_utils import answer_match_type, passage_has_answer, write_jsonl
 
 
 CHECKPOINT = ROOT / "outputs" / "local_multi_smoke" / "dpr_biencoder.0"
@@ -67,6 +68,9 @@ def main():
     parser.add_argument("--encoded", type=Path, default=ENCODED)
     parser.add_argument("--result-file", type=Path, default=RESULT_FILE)
     parser.add_argument("--qa-config", default="local_qa_tests")
+    parser.add_argument("--datasets", nargs="+", choices=TEST_KEYS, default=TEST_KEYS)
+    parser.add_argument("--top-docs", type=int, default=100)
+    parser.add_argument("--save-per-query", action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args()
     if not args.checkpoint.is_file() or not args.encoded.is_file():
         raise FileNotFoundError(f"Expected checkpoint {args.checkpoint} and passage vectors {args.encoded}")
@@ -95,24 +99,22 @@ def main():
     ctx_src = hydra.utils.instantiate(cfg.ctx_sources.wiki50k)
     passages = {}
     ctx_src.load_data_to(passages)
-    passage_ids = list(passages)
-    passage_id_to_idx = {pid: idx for idx, pid in enumerate(passage_ids)}
     tokenizer = SimpleTokenizer()
-    passage_texts = [" " + " ".join(tokenizer.tokenize(unicodedata.normalize("NFD", passages[pid].text)).words(uncased=True)) + " " for pid in passage_ids]
     indexer = DenseFlatIndexer(buffer_size=50000)
     indexer.init_index(vector_size)
     with args.encoded.open("rb") as stream:
         encoded_passages = pickle.load(stream)
     indexer.index_data(encoded_passages)
-    indexer.serialize(str(INDEX_PREFIX))
+    index_prefix = args.result_file.with_name(args.result_file.stem + "_flat")
+    indexer.serialize(str(index_prefix))
 
     results = {}
-    for dataset_key in TEST_KEYS:
+    for dataset_key in args.datasets:
         qa_src = hydra.utils.instantiate(cfg.datasets[dataset_key])
         qa_src.load_data()
-        questions = [sample.query for sample in qa_src]
-        answers = [sample.answers for sample in qa_src]
-        answer_phrases = [[normalized_phrase(answer, tokenizer) for answer in answer_list] for answer_list in answers]
+        samples = list(qa_src)
+        questions = [sample.query for sample in samples]
+        answers = [sample.answers for sample in samples]
         started = time.perf_counter()
         query_vectors = encode_questions(
             question_encoder,
@@ -121,32 +123,58 @@ def main():
             args.batch_size,
             cfg.device,
         )
-        top_docs = min(100, len(passages))
+        top_docs = min(args.top_docs, len(passages))
         retrieved = indexer.search_knn(query_vectors, top_docs)
         hit_counts = {1: 0, 5: 0, 20: 0, 100: 0}
-        for phrases, (doc_ids, _scores) in zip(answer_phrases, retrieved):
+        per_query = []
+        match_type = answer_match_type(dataset_key)
+        for query_index, (sample, answer_list, (doc_ids, scores)) in enumerate(zip(samples, answers, retrieved)):
             first_hit = None
-            for rank, doc_id in enumerate(doc_ids):
-                doc_phrase = passage_texts[passage_id_to_idx[doc_id]]
-                if any(phrase and phrase in doc_phrase for phrase in phrases):
+            ranked = []
+            for rank, (doc_id, score) in enumerate(zip(doc_ids, scores), start=1):
+                passage_text = passages[doc_id].text
+                answer_hit = passage_has_answer(answer_list, passage_text, tokenizer, dataset_key)
+                ranked.append({
+                    "rank": rank,
+                    "passage_id": str(doc_id),
+                    "score": float(score),
+                    "answer_hit": answer_hit,
+                })
+                if answer_hit and first_hit is None:
                     first_hit = rank
-                    break
             if first_hit is not None:
                 for cutoff in hit_counts:
-                    if first_hit < cutoff:
+                    if first_hit <= cutoff:
                         hit_counts[cutoff] += 1
+            per_query.append({
+                "query_id": str(sample.id) if sample.id is not None else f"{dataset_key}:{query_index}",
+                "query_index": query_index,
+                "dataset": dataset_key,
+                "question": sample.query,
+                "answers": [str(answer) for answer in answer_list],
+                "match_type": match_type,
+                "first_answer_rank": first_hit,
+                "candidates": ranked,
+            })
+        per_query_path = None
+        if args.save_per_query:
+            per_query_path = args.result_file.with_name(args.result_file.stem + "_per_query") / f"{dataset_key}.jsonl.gz"
+            write_jsonl(per_query_path, per_query)
         elapsed = time.perf_counter() - started
         results[dataset_key] = {
             "questions": len(questions),
+            "candidate_k": top_docs,
             "hits": hit_counts,
             "top_k_accuracy": {str(k): hit_counts[k] / len(questions) for k in hit_counts},
             "query_and_match_seconds": round(elapsed, 2),
+            "match_type": match_type,
+            "per_query_results": str(per_query_path) if per_query_path else None,
         }
         print(f"{dataset_key}: {results[dataset_key]}", flush=True)
         partial_report = {
             "model_checkpoint": str(args.checkpoint),
             "passage_vectors": str(args.encoded),
-            "faiss_index": str(INDEX_PREFIX),
+            "faiss_index": str(index_prefix),
             "faiss_type": "IndexFlatIP",
             "corpus_size": indexer.index.ntotal,
             "max_sequence_length": cfg.encoder.sequence_length,
@@ -158,7 +186,7 @@ def main():
     report = {
         "model_checkpoint": str(args.checkpoint),
         "passage_vectors": str(args.encoded),
-        "faiss_index": str(INDEX_PREFIX),
+        "faiss_index": str(index_prefix),
         "faiss_type": "IndexFlatIP",
         "corpus_size": indexer.index.ntotal,
         "max_sequence_length": cfg.encoder.sequence_length,
@@ -170,3 +198,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

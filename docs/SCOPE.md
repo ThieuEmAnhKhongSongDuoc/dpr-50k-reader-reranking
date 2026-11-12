@@ -1,20 +1,11 @@
-# Scope
+# Version 2 scope
 
-Completed: fixed 50,000-passage reservoir sample, seed 12345; full-test
-Lucene BM25, official DPR Multi and NQ-Single references on five datasets
-(28,219 questions); Reader K=200 on full NQ, CuratedTREC and TriviaQA
-(15,617 questions); Reader K=100 on NQ and CuratedTREC; corpus coverage.
+This revision addresses only the teacher's listed feedback:
 
-NQ-Single on non-NQ tests is transfer, not separately trained Single models.
-IndexFlatIP is used before and after Reader reranking. There is no paired
-HNSW/FlatIP ablation and no claim of a new indexing or Reader architecture.
+- Apply the official DPR regex matcher to CuratedTREC coverage, BM25, DPR, and Reader answer-hit evaluation.
+- Retain the corrected BM25+DPR passage-ID normalization and report the corrected full-test fusion results.
+- Run the official Reader with FP16 at the requested K=100 setting, using TriviaQA development before the full TriviaQA test.
+- Report Reader span Exact Match on TriviaQA and keep per-question candidates/scores for auditing.
+- Keep the 50,000-passage corpus and existing official checkpoints fixed.
 
-Only Reader relevance logits rank passages; answer-span outputs are ignored.
-Hit@k uses NFD normalization, uncased DPR SimpleTokenizer phrase matching
-in passage bodies. Coverage is an availability ceiling, not retrieval accuracy.
-
-Old score-fusion results are excluded because BM25 numeric passage IDs were
-not normalized to DPR wiki-prefixed IDs. No corrected fusion score is claimed.
-Incomplete training/negative-mining runs and exploratory 3000-question samples
-are outside the paper's results. Small-corpus scores are not directly
-comparable to original full-Wikipedia DPR scores.
+The corrected baseline and Reader output files are saved under `results/v2_feedback/`; Reader summaries and per-query outputs are also included in the paper source package where applicable. K=100 was fixed for the requested run, and no alternative-K sweep is claimed. Model training, a new corpus, and a separate reranker are outside this revision. The LaTeX draft proposes author contributions covering Versions 1 and 2; the five authors should confirm the role assignments before submission.

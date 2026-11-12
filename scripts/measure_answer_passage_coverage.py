@@ -18,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from dpr.utils.tokenizers import SimpleTokenizer
+from evaluation_utils import answer_match_type, passage_has_answer
 
 
 DEFAULT_CORPUS = Path(r"D:\DPR-data\wikipedia\psgs_w100_sample_50000.tsv")
@@ -115,6 +116,11 @@ def main():
     no_valid_answers = 0
     for qid, question in enumerate(questions):
         has_pattern = False
+        if answer_match_type(question["dataset"]) == "regex":
+            has_pattern = bool(question["answers"])
+            if not has_pattern:
+                no_valid_answers += 1
+            continue
         for answer in question["answers"]:
             tokens = normalized_tokens(answer, tokenizer)
             if tokens:
@@ -126,6 +132,10 @@ def main():
 
     corpus_count = 0
     covered = set()
+    regex_question_ids = [
+        qid for qid, question in enumerate(questions)
+        if answer_match_type(question["dataset"]) == "regex"
+    ]
     with args.corpus.open("r", encoding="utf-8", newline="") as stream:
         reader = csv.reader(stream, delimiter="\t")
         header = next(reader, None)
@@ -133,8 +143,17 @@ def main():
             if len(row) < 2:
                 continue
             corpus_count += 1
-            tokens = normalized_tokens(row[1], tokenizer)
+            passage_text = row[1]
+            tokens = normalized_tokens(passage_text, tokenizer)
             covered.update(machine.scan(tokens))
+            # CuratedTREC answers are regex expressions in the official DPR data.
+            # Test only uncovered questions; compiled expressions are cached by
+            # dpr.data.qa_validation.regex_match for this full-corpus scan.
+            for qid in regex_question_ids:
+                if qid not in covered and passage_has_answer(
+                    questions[qid]["answers"], passage_text, tokenizer, questions[qid]["dataset"]
+                ):
+                    covered.add(qid)
             if corpus_count % 10000 == 0:
                 print(f"scanned {corpus_count} passages; covered {len(covered)}/{len(questions)} questions", flush=True)
 
@@ -150,7 +169,7 @@ def main():
     report = {
         "corpus_file": str(args.corpus),
         "qa_directory": str(args.qa_dir),
-        "matching": "DPR SimpleTokenizer; NFD; case-insensitive token phrase match in passage text (same answer-string style as local evaluator)",
+        "matching": "DPR SimpleTokenizer token matching for string answers; CuratedTREC uses dpr.data.qa_validation.regex_match with the official regex match_type",
         "coverage_definition": "fraction of test questions with any answer string appearing in at least one corpus passage",
         "corpus_passages": corpus_count,
         "total_questions": len(questions),

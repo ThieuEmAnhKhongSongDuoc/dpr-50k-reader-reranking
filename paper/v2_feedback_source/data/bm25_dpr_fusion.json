@@ -1,0 +1,81 @@
+{
+  "retriever": "BM25+DPR score fusion",
+  "bm25": "Apache Lucene 8.11.2 BM25Similarity k1=.9 b=.4; EnglishAnalyzer",
+  "dpr_checkpoint": "official DPR Multi retriever checkpoint",
+  "corpus_size": 50000,
+  "bm25_candidate_k": 2000,
+  "dpr_candidate_k": 2000,
+  "fusion": "BM25(q,p) + lambda_dpr * DPR_dot_product(q,p)",
+  "lambda_dpr": 1.1,
+  "id_normalization": "Lucene numeric IDs are normalized to the DPR wiki:<id> format before union and lookup.",
+  "faiss_type": "IndexFlatIP",
+  "test_results": {
+    "nq_test": {
+      "questions": 3610,
+      "candidate_k_each": 2000,
+      "lambda_dpr": 1.1,
+      "hits": {
+        "20": 943,
+        "100": 1370
+      },
+      "top_k_accuracy": {
+        "20": 0.261218836565097,
+        "100": 0.37950138504155123
+      }
+    },
+    "trivia_test": {
+      "questions": 11313,
+      "candidate_k_each": 2000,
+      "lambda_dpr": 1.1,
+      "hits": {
+        "20": 3916,
+        "100": 5528
+      },
+      "top_k_accuracy": {
+        "20": 0.34615044638910986,
+        "100": 0.4886413860160877
+      }
+    },
+    "webq_test": {
+      "questions": 2032,
+      "candidate_k_each": 2000,
+      "lambda_dpr": 1.1,
+      "hits": {
+        "20": 753,
+        "100": 994
+      },
+      "top_k_accuracy": {
+        "20": 0.3705708661417323,
+        "100": 0.4891732283464567
+      }
+    },
+    "curatedtrec_test": {
+      "questions": 694,
+      "candidate_k_each": 2000,
+      "lambda_dpr": 1.1,
+      "hits": {
+        "20": 362,
+        "100": 473
+      },
+      "top_k_accuracy": {
+        "20": 0.521613832853026,
+        "100": 0.6815561959654178
+      },
+      "match_type": "regex"
+    },
+    "squad1_test": {
+      "questions": 10570,
+      "candidate_k_each": 2000,
+      "lambda_dpr": 1.1,
+      "hits": {
+        "20": 2378,
+        "100": 3690
+      },
+      "top_k_accuracy": {
+        "20": 0.2249763481551561,
+        "100": 0.3491012298959319
+      }
+    }
+  },
+  "per_query_results": "outputs/local_retrieval/paper_multi_bm25_fusion_50k_fulltest_corrected_per_query/all_datasets.jsonl.gz"
+}

@@ -1,0 +1,17 @@
+\begin{table*}[t]
+\caption{Answer-containing-passage results before and after Reader reranking at $K=100$.}
+\label{tab:reranking}
+\centering
+\small
+\begin{tabular}{llrrrr}
+\toprule
+Test & Method & Hit@1 & Hit@5 & Hit@20 & Hit@100 \\
+\midrule
+CuratedTREC & DPR Multi & 16.43 (114) & 34.58 (240) & 51.15 (355) & 68.01 (472) \\
+ & Reader, $K=100$ & 25.79 (179) & 40.63 (282) & 55.62 (386) & 68.01 (472) \\
+\midrule
+TriviaQA & DPR Multi & 9.81 (1,110) & 20.77 (2,350) & 33.60 (3,801) & 48.04 (5,435) \\
+ & Reader, $K=100$ & 18.09 (2,046) & 30.57 (3,458) & 41.35 (4,678) & 48.06 (5,437) \\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -1,0 +1,8 @@
+\section{Limitations}
+The evaluation uses one fixed reservoir sample of 50,000 passages from the 21-million-passage Wikipedia corpus. Sampling changes both answer availability and the distribution of distractors. Measured coverage is an answer-string or regex availability diagnostic, not a semantic relevance judgment; a matching expression can occur in a passage that does not support the answer.
+
+All DPR and Reader weights are released author checkpoints. The experiments evaluate inference and do not reproduce DPR training or update model weights. The corrected BM25+DPR baseline uses a raw weighted score sum; its values depend on the recorded component scores and coefficient.
+
+The study uses one corpus seed and one run per configuration, so it does not estimate variation across corpus samples or establish statistical significance. IndexFlatIP gives exact inner-product results for the supplied vectors, but this revision does not measure an HNSW--FlatIP speed/recall tradeoff.
+
+The Reader is evaluated on a finite $K=100$ candidate set produced by DPR and cannot recover answer-bearing passages outside it. Span predictions are affected by the 350-token input limit. Reader Exact Match is meaningful for literal answer strings; CuratedTREC is evaluated with regex-based answer-hit matching rather than span Exact Match. These are retrieval and reranking measurements, not a complete open-domain QA evaluation.
