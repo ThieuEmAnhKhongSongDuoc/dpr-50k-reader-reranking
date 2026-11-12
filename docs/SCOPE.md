@@ -8,4 +8,4 @@ This revision addresses only the teacher's listed feedback:
 - Report Reader span Exact Match on TriviaQA and keep per-question candidates/scores for auditing.
 - Keep the 50,000-passage corpus and existing official checkpoints fixed.
 
-The corrected baseline and Reader output files are saved under `results/v2_feedback/`; Reader summaries and per-query outputs are also included in the paper source package where applicable. K=100 was fixed for the requested run, and no alternative-K sweep is claimed. Model training, a new corpus, and a separate reranker are outside this revision. The paper's Author Contributions section still needs verified roles from the five authors.
+The corrected baseline and Reader output files are saved under `results/v2_feedback/`; Reader summaries and per-query outputs are also included in the paper source package where applicable. K=100 was fixed for the requested run, and no alternative-K sweep is claimed. Model training, a new corpus, and a separate reranker are outside this revision. The LaTeX draft proposes author contributions covering Versions 1 and 2; the five authors should confirm the role assignments before submission.

@@ -12,8 +12,8 @@ Authors, in the requested order:
 5. Trịnh Minh Bảo Trân
 
 The author block uses the supplied FPT University affiliation and omits the
-team label. Author contribution roles still need confirmation from the five
-authors before the final submission.
+team label. The proposed contribution allocation covers Versions 1 and 2 and
+should be confirmed by all five authors before final submission.
 
 ## Open and compile
 

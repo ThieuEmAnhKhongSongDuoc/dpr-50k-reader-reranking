@@ -40,6 +40,6 @@ The local hybrid retrieves up to 2,000 candidates per retriever, normalizes pass
 | Editable Version 2 feedback draft (LaTeX source and verified tables) | `paper/v2_feedback_source/` |
 | Model/data artifact manifest | `weights/manifest.json` |
 
-Reader reruns used FP16 on Kaggle T4 x2 and K=100. TriviaQA development was run before the held-out test; K=100 was the fixed requested budget, and this repository does not claim an alternative-K sweep. Reader span Exact Match is reported for TriviaQA. Corrected CuratedTREC Reader metrics are included. The Author Contributions section still needs verified roles from all five members.
+Reader reruns used FP16 on Kaggle T4 x2 and K=100. TriviaQA development was run before the held-out test; K=100 was the fixed requested budget, and this repository does not claim an alternative-K sweep. Reader span Exact Match is reported for TriviaQA. Corrected CuratedTREC Reader metrics are included. The LaTeX draft now proposes author contributions covering Versions 1 and 2; all five authors should confirm their roles before final submission.
 
 Large datasets and checkpoints are not stored in this repository. See `docs/REPRODUCE.md` for resource identifiers and setup. Upstream DPR code and third-party resources retain their original licenses.
