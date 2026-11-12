@@ -20,6 +20,9 @@ data/processed/
 *.pt
 *.pth
 *.gz
+!results/v2_feedback/per_query/curatedtrec_reader_regex_k100_fp16.jsonl.gz
+!results/v2_feedback/per_query/trivia_dev_reader_k100_fp16.jsonl.gz
+!results/v2_feedback/per_query/trivia_reader_k100_fp16.jsonl.gz
 *.zip
 *.bak*
 .ipynb_checkpoints/

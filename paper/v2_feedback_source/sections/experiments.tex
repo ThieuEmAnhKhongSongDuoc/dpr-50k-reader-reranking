@@ -4,7 +4,7 @@ The first-stage evaluations cover all 28,219 test questions from the five offici
 
 \input{tables/datasets}
 
-The DPR Multi checkpoint is the fixed first stage for Reader reranking. An additional official NQ-Single checkpoint is reported for context; its non-NQ rows are transfer evaluations. Candidate budgets $K=100$ and $K=200$ are compared on the official TriviaQA development split, using Hit@20 to select the budget before test evaluation. The test set is not used for budget selection. For the feedback Reader runs, candidate relevance and answer-span outputs are computed in FP16 on two Kaggle Tesla T4 GPUs. The earlier NQ Reader result, where included, is identified as a prior FP32 run.
+The DPR Multi checkpoint is the fixed first stage for Reader reranking. An additional official NQ-Single checkpoint is reported for context; its non-NQ rows are transfer evaluations. The feedback reranking budget is fixed at $K=100$, as explicitly requested. The official TriviaQA development split is run before test evaluation; no test results are used to choose settings. Reader relevance and answer-span outputs are computed in FP16 on two Kaggle Tesla T4 GPUs. Earlier FP32 Reader results are not used as feedback-run results.
 
 \subsection{Answer-Hit Metric}
 Let $A_q$ contain the accepted answer strings of question $q$, and let $m(a,p)$ indicate that the normalized token sequence of answer $a$ occurs contiguously in the body of passage $p$. For ranked list $R(q)$,
@@ -37,4 +37,4 @@ This diagnostic changes the denominator. It must be reported alongside full-test
 \subsection{Runtime and Reproducibility}
 The feedback Reader reruns use two Kaggle Tesla T4 GPUs, a global candidate batch of 16, and FP16 inference. Retriever question batches are eight. Passage embeddings, corpus records, and QA files are fixed inputs; the reranking corpus is byte-identical to the coverage corpus. Runtime is the script's reranking-loop timer, including pair preparation, Reader scoring, and hit matching, but excluding queueing, environment setup, model loading, initial question encoding, and FAISS search. First-stage timing from another environment is not used to claim an end-to-end speed ratio.
 
-Per-query outputs retain question IDs, candidate passage IDs, original retriever ranks, Reader relevance scores, answer-hit labels, and Reader span predictions. The dev split is used for candidate-budget selection and the full test sets are reserved for final evaluation.
+Per-query outputs retain question IDs, candidate passage IDs, original retriever ranks, Reader relevance scores, answer-hit labels, and Reader span predictions. TriviaQA development is evaluated first at the fixed $K=100$ budget; its full test split is reserved for final evaluation.

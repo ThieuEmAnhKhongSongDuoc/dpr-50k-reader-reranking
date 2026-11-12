@@ -1,5 +1,5 @@
 {
-  "status": "corrected first-stage and hybrid results; Reader feedback runs pending",
+  "status": "corrected full-test baselines, regex CuratedTREC metrics, normalized BM25+DPR fusion, and Reader K=100 FP16 feedback runs validated; author contributions remain to be confirmed",
   "corpus": {
     "passages": 50000,
     "sample": "reservoir sampling over complete DPR psgs_w100 source",
@@ -71,6 +71,103 @@
     "per_query/curatedtrec_dpr_single_nq.jsonl.gz": {
       "bytes": 1151578,
       "sha256": "b272484deaffddf8e9bb7f60004f1ccb5a0b7e253944e4033fefa05afad8867a"
+    },
+    "curatedtrec_reader_regex_k100_fp16.json": {
+      "bytes": 1426,
+      "sha256": "1631e535a1c6143036c551344918e6a0f42872aef15c73d1fcf0904ec5757651"
+    },
+    "trivia_dev_reader_k100_fp16.json": {
+      "bytes": 1430,
+      "sha256": "c0c1e712748cc66f28a5365d4d6e242f34526c4f7cf0c772aaa3a0214bc207bf"
+    },
+    "trivia_reader_k100_fp16.json": {
+      "bytes": 1431,
+      "sha256": "40ce525401c41f52bd5d7ef2da1507f4e6fb69180199933bf6852b1257ccc68c"
+    },
+    "per_query/curatedtrec_reader_regex_k100_fp16.jsonl.gz": {
+      "bytes": 1001644,
+      "sha256": "590043638adf1f987c66c7c5dfc7256b90433aa4e971ab6d90c6432a7643112d"
+    },
+    "per_query/trivia_dev_reader_k100_fp16.jsonl.gz": {
+      "bytes": 13792006,
+      "sha256": "1369c26715917392e3540736f9c2a031bc29ae44b419b2bb303c1202793d0eb2"
+    },
+    "per_query/trivia_reader_k100_fp16.jsonl.gz": {
+      "bytes": 17655708,
+      "sha256": "3dd39d420117ab61dcad3ebf16e4fc0b8c8885fbb75ffb298c2e83f85e029499"
+    },
+    "summary.csv": {
+      "bytes": 2412,
+      "sha256": "efb2ba433afb98741f0a41905f3ac85ba1a075ef9d413db50cc2cfb1bd7a2865"
+    },
+    "verification.json": {
+      "bytes": 388,
+      "sha256": "822de32c842c3176a2a24f9fcc1f07b02ece8c1de5d6f1dbea5f1c9a3f23b3da"
+    }
+  },
+  "reader_runs": {
+    "reader_checkpoint": "official DPR extractive Reader checkpoint supplied in Kaggle input bundle",
+    "retriever_checkpoint": "official DPR Multi checkpoint supplied in Kaggle input bundle",
+    "corpus_passages": 50000,
+    "faiss_type": "IndexFlatIP",
+    "candidate_k": 100,
+    "batch_size": 16,
+    "precision": "fp16",
+    "gpus": "2 x NVIDIA Tesla T4",
+    "triviaqa_dev_run_before_test": true,
+    "k_selection_note": "K=100 was fixed as the requested evaluation budget; no alternative-K sweep is claimed.",
+    "datasets": {
+      "curatedtrec_test": {
+        "questions": 694,
+        "match_type": "regex",
+        "hit_counts": {
+          "1": 179,
+          "5": 282,
+          "20": 386,
+          "100": 472
+        },
+        "span_exact_match": null
+      },
+      "trivia_dev": {
+        "questions": 8837,
+        "match_type": "string",
+        "hit_counts": {
+          "1": 1632,
+          "5": 2773,
+          "20": 3681,
+          "100": 4279
+        },
+        "span_exact_match_count": 1105,
+        "span_exact_match_accuracy": 0.1250424352155709
+      },
+      "trivia_test": {
+        "questions": 11313,
+        "match_type": "string",
+        "hit_counts": {
+          "1": 2046,
+          "5": 3458,
+          "20": 4678,
+          "100": 5437
+        },
+        "span_exact_match_count": 1419,
+        "span_exact_match_accuracy": 0.12543092018032354
+      }
+    },
+    "per_query_schema": [
+      "query_id",
+      "question",
+      "answers",
+      "match_type",
+      "reader_answer",
+      "reader_answer_passage_id",
+      "reader_answer_span_score",
+      "exact_match",
+      "candidates (rank, retriever_rank, passage_id, reader_relevance_score, answer_hit)"
+    ],
+    "per_query_rows": {
+      "curatedtrec_test": 694,
+      "trivia_dev": 8837,
+      "trivia_test": 11313
     }
   }
 }

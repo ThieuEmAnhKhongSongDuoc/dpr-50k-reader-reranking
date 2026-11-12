@@ -1,9 +1,6 @@
-"""Build manuscript tables from the saved, audited DPR result summaries.
+"""Build paper tables from audited summaries; never runs model inference."""
 
-This script never runs retrieval or Reader inference. Feedback Reader tables are
-written only after the required Kaggle outputs have been copied into data/.
-"""
-
+import gzip
 import json
 import math
 from pathlib import Path
@@ -46,7 +43,9 @@ def validate_result(row):
         assert 0 <= count <= questions, (cutoff, count, questions)
         if cutoff in row.get("top_k_accuracy", {}):
             assert math.isclose(
-                row["top_k_accuracy"][cutoff], count / questions, rel_tol=1e-10
+                row["top_k_accuracy"][cutoff],
+                count / questions,
+                rel_tol=1e-10,
             ), (cutoff, row["top_k_accuracy"][cutoff], count / questions)
 
 
@@ -90,7 +89,6 @@ for dataset in NAMES:
         for count in row["hits"].values()
     ), dataset
 
-# The fixed TREC results must explicitly identify the official regex evaluator.
 trec_rows = [
     dpr_result(multi, "curatedtrec"),
     dpr_result(single, "curatedtrec"),
@@ -118,7 +116,7 @@ write_table(
         r"\footnotesize",
         r"\begin{tabular}{lrrr}",
         r"\toprule",
-        r"Test & Questions & Covered & Coverage (\%) " + r"\\",
+        r"Test & Questions & Covered & Coverage (\%) \\",
         r"\midrule",
         *dataset_rows,
         r"\bottomrule",
@@ -147,7 +145,7 @@ write_table(
         r"\small",
         r"\begin{tabular}{lrrrr}",
         r"\toprule",
-        r"Test & Lucene BM25 & DPR NQ-Single & DPR Multi & BM25+DPR " + r"\\",
+        r"Test & Lucene BM25 & DPR NQ-Single & DPR Multi & BM25+DPR \\",
         r"\midrule",
         *baseline_rows,
         r"\bottomrule",
@@ -156,51 +154,62 @@ write_table(
     ],
 )
 
-# Feedback Reader tables are gated on the actual outputs from Kaggle.
 reader_inputs = {
-    "curatedtrec": DATA / "curatedtrec_reader_regex_k200_fp16.json",
-    "trivia": DATA / "trivia_reader_selected_k_fp16.json",
-    "dev": DATA / "trivia_dev_budget_selection.json",
+    "dev": DATA / "trivia_dev_reader_k100_fp16.json",
+    "curatedtrec": DATA / "curatedtrec_reader_regex_k100_fp16.json",
+    "trivia": DATA / "trivia_reader_k100_fp16.json",
 }
-if all(path.is_file() for path in reader_inputs.values()):
-    trec_reader = read(reader_inputs["curatedtrec"].name)["test_results"]["curatedtrec_test"]
-    trivia_reader = read(reader_inputs["trivia"].name)["test_results"]["trivia_test"]
-    dev = read(reader_inputs["dev"].name)
-    assert dev["evaluation_split"] == "development"
-    assert dev["budget_selection_uses_test"] is False
-    dev_rows = dev["results_by_budget"]
-    selected_k = min(
-        (int(k) for k in dev_rows),
-        key=lambda k: (-dev_rows[str(k)]["top_k_accuracy"]["20"], k),
-    )
-    assert trivia_reader["candidate_k"] == selected_k
-    assert trec_reader["match_type"] == "regex"
-    assert trec_reader["reader_precision"] == "fp16"
-    assert trivia_reader["reader_precision"] == "fp16"
-    assert trivia_reader["exact_match_accuracy"] is not None
+per_query_inputs = {
+    "dev": DATA / "per_query" / "trivia_dev_reader_k100_fp16.jsonl.gz",
+    "curatedtrec": DATA / "per_query" / "curatedtrec_reader_regex_k100_fp16.jsonl.gz",
+    "trivia": DATA / "per_query" / "trivia_reader_k100_fp16.jsonl.gz",
+}
 
-    # When development selects K=200, the required K=100 test result is
-    # recovered from the same per-query scores by restricting to DPR top 100.
-    trivia_k100 = trivia_reader
-    if selected_k == 200:
-        budget_path = DATA / "trivia_test_budget_metrics.json"
-        if not budget_path.is_file():
-            raise SystemExit(
-                "Development selected TriviaQA K=200; add trivia_test_budget_metrics.json "
-                "to provide the required full-test K=100 metrics."
-            )
-        test_budget_metrics = read(budget_path.name)
-        assert test_budget_metrics["evaluation_split"] == "test"
-        trivia_k100 = test_budget_metrics["results_by_budget"]["100"]
-        assert trivia_k100["candidate_k"] == 100
-        assert trivia_k100["questions"] == trivia_reader["questions"]
-    else:
-        assert selected_k == 100
+
+def validate_per_query(path, expected_questions, expected_match_type):
+    seen = 0
+    with gzip.open(path, "rt", encoding="utf-8") as stream:
+        for line in stream:
+            row = json.loads(line)
+            assert row["query_id"] and row["match_type"] == expected_match_type
+            candidates = row["candidates"]
+            assert len(candidates) == 100
+            for candidate in candidates:
+                assert candidate.get("passage_id") is not None
+                assert candidate.get("reader_relevance_score") is not None
+            seen += 1
+    assert seen == expected_questions, (path, seen, expected_questions)
+
+
+if all(path.is_file() for path in reader_inputs.values()) and all(
+    path.is_file() for path in per_query_inputs.values()
+):
+    dev = read(reader_inputs["dev"].name)["test_results"]["trivia_dev"]
+    trec_reader = read(reader_inputs["curatedtrec"].name)["test_results"][
+        "curatedtrec_test"
+    ]
+    trivia_reader = read(reader_inputs["trivia"].name)["test_results"]["trivia_test"]
+
+    assert dev["candidate_k"] == 100 and dev["reader_precision"] == "fp16"
+    assert trec_reader["candidate_k"] == 100
+    assert trec_reader["reader_precision"] == "fp16"
+    assert trec_reader["match_type"] == "regex"
+    assert trivia_reader["candidate_k"] == 100
+    assert trivia_reader["reader_precision"] == "fp16"
+    assert trivia_reader["match_type"] == "string"
+    assert trivia_reader["exact_match_accuracy"] is not None
+    assert trivia_reader["questions"] == dpr_result(multi, "trivia")["questions"]
+    assert trec_reader["questions"] == dpr_result(multi, "curatedtrec")["questions"]
+
+    validate_per_query(per_query_inputs["dev"], dev["questions"], "string")
+    validate_per_query(
+        per_query_inputs["curatedtrec"], trec_reader["questions"], "regex"
+    )
+    validate_per_query(per_query_inputs["trivia"], trivia_reader["questions"], "string")
 
     readers = {"curatedtrec": trec_reader, "trivia": trivia_reader}
     for dataset, row in readers.items():
         validate_result(row)
-        assert row["questions"] == dpr_result(multi, dataset)["questions"]
         assert all(
             count <= coverage["per_dataset"][dataset]["covered_questions"]
             for count in row["hits"].values()
@@ -208,10 +217,10 @@ if all(path.is_file() for path in reader_inputs.values()):
 
     rerank_rows = []
     for index, dataset in enumerate(("curatedtrec", "trivia")):
-        reader_rows = [(f"Reader, $K={readers[dataset]['candidate_k']}$", readers[dataset])]
-        if dataset == "trivia" and selected_k == 200:
-            reader_rows.insert(0, ("Reader, $K=100$", trivia_k100))
-        for method, row in [("DPR Multi", dpr_result(multi, dataset)), *reader_rows]:
+        for method, row in [
+            ("DPR Multi", dpr_result(multi, dataset)),
+            ("Reader, $K=100$", readers[dataset]),
+        ]:
             hits = " & ".join(
                 f"{pct(row, cutoff)} ({row['hits'][str(cutoff)]:,})"
                 for cutoff in (1, 5, 20, 100)
@@ -224,13 +233,13 @@ if all(path.is_file() for path in reader_inputs.values()):
         "reranking.tex",
         [
             r"\begin{table*}[t]",
-            r"\caption{Answer-containing-passage results before and after Reader reranking.}",
+            r"\caption{Answer-containing-passage results before and after Reader reranking at $K=100$.}",
             r"\label{tab:reranking}",
             r"\centering",
             r"\small",
             r"\begin{tabular}{llrrrr}",
             r"\toprule",
-            r"Test & Method & Hit@1 & Hit@5 & Hit@20 & Hit@100 " + r"\\",
+            r"Test & Method & Hit@1 & Hit@5 & Hit@20 & Hit@100 \\",
             r"\midrule",
             *rerank_rows,
             r"\bottomrule",
@@ -245,82 +254,36 @@ if all(path.is_file() for path in reader_inputs.values()):
         "span_em.tex",
         [
             r"\begin{table}[t]",
-            r"\caption{TriviaQA Reader span exact match at the development-selected budget.}",
+            r"\caption{TriviaQA Reader span exact match at $K=100$.}",
             r"\label{tab:spanem}",
             r"\centering",
             r"\footnotesize",
-            r"\begin{tabular}{lrrr}",
+            r"\begin{tabular}{lrr}",
             r"\toprule",
-            r"Test & $K$ & Exact Match (\%) & Count " + r"\\",
+            r"Test & Exact Match (\%) & Count \\",
             r"\midrule",
-            f"TriviaQA & {selected_k} & {100 * trivia_reader['exact_match_accuracy']:.2f} "
+            f"TriviaQA & {100 * trivia_reader['exact_match_accuracy']:.2f} "
             f"& {exact_count:,}/{exact_questions:,} " + r"\\",
             r"\bottomrule",
             r"\end{tabular}",
             r"\end{table}",
         ],
     )
-
-    budget_rows = []
-    for budget in sorted(int(k) for k in dev_rows):
-        row = dev_rows[str(budget)]
-        chosen = "Yes" if budget == selected_k else "No"
-        budget_rows.append(
-            f"{budget} & {row['questions']:,} & "
-            f"{100 * row['top_k_accuracy']['20']:.2f} & {chosen} " + r"\\"
-        )
-    write_table(
-        "budget.tex",
-        [
-            r"\begin{table}[t]",
-            r"\caption{TriviaQA candidate budget selected on development Hit@20.}",
-            r"\label{tab:budget}",
-            r"\centering",
-            r"\footnotesize",
-            r"\begin{tabular}{lrrr}",
-            r"\toprule",
-            r"$K$ & Dev questions & Dev Hit@20 (\%) & Selected " + r"\\",
-            r"\midrule",
-            *budget_rows,
-            r"\bottomrule",
-            r"\end{tabular}",
-            r"\end{table}",
-        ],
-    )
-
-    conditional_rows = []
-    for dataset in ("curatedtrec", "trivia"):
-        covered = coverage["per_dataset"][dataset]["covered_questions"]
-        full_n = readers[dataset]["questions"]
-        dpr = dpr_result(multi, dataset)
-        reader = readers[dataset]
-        conditional_rows.append(
-            f"{LABELS[dataset]} & {100 * covered / full_n:.2f} & "
-            f"{100 * dpr['hits']['20'] / covered:.2f} & "
-            f"{100 * reader['hits']['20'] / covered:.2f} & "
-            f"{100 * reader['hits']['100'] / covered:.2f} " + r"\\"
-        )
-    write_table(
-        "conditional.tex",
-        [
-            r"\begin{table}[t]",
-            r"\caption{Coverage-conditioned answer-hit accuracy (\%).}",
-            r"\label{tab:conditional}",
-            r"\centering",
-            r"\footnotesize",
-            r"\begin{tabular}{lrrrr}",
-            r"\toprule",
-            r"Test & Coverage & DPR H@20$\mid C$ & Reader H@20$\mid C$ & Reader H@100$\mid C$ " + r"\\",
-            r"\midrule",
-            *conditional_rows,
-            r"\bottomrule",
-            r"\end{tabular}",
-            r"\end{table}",
-        ],
-    )
-    print(f"Reader tables written. TriviaQA K selected on development: {selected_k}.")
+    print("Reader tables written from complete K=100 FP16 dev/test outputs.")
 else:
-    absent = [name for name, path in reader_inputs.items() if not path.is_file()]
-    print("Reader tables not regenerated; required Kaggle files missing: " + ", ".join(absent))
+    # Never let a stale table survive after the run inputs are absent.
+    for generated in ("reranking.tex", "span_em.tex"):
+        stale_path = TABLES / generated
+        if stale_path.exists():
+            stale_path.unlink()
+    absent = [
+        str(path.relative_to(ROOT))
+        for path in [*reader_inputs.values(), *per_query_inputs.values()]
+        if not path.is_file()
+    ]
+    print(
+        "Reader tables not regenerated; required Kaggle files missing: "
+        + ", ".join(absent)
+    )
 
 print("Regenerated datasets.tex and baselines.tex from saved result summaries.")

@@ -52,10 +52,16 @@ names and SHA256 hashes, the sampled corpus digest, and resource identifiers.
 - The CuratedTREC evaluation path calls DPR's `regex_match` directly, with the
   same Unicode normalization and regex flags as the upstream validation code.
 - The corrected five-test BM25+DPR fusion run and per-query scores are saved.
-- Kaggle feedback runs for Reader FP16, TriviaQA K=100, development-based K
-  selection, and Reader span Exact Match are still pending.
-- The current PDF in `build/` predates the feedback corrections and must not be
-  treated as the final version.
+- The official Reader feedback runs are complete: CuratedTREC test (694
+  questions), TriviaQA development (8,837), and TriviaQA test (11,313), all at
+  K=100 with FP16 on two Kaggle T4 GPUs. TriviaQA development was run before
+  test. K=100 was the fixed requested budget; no alternative-K sweep is claimed.
+- Reader aggregate JSON outputs are copied into `data/`; their per-query
+  JSONL.GZ files are stored under `results/v2_feedback/per_query/`.
+  `python build_tables.py` regenerates the reranking and span-EM tables without
+  running inference.
+- The current PDF in `build/` predates the Reader feedback results and must be
+  rebuilt before submission.
 
 The large corpus, models, API tokens, virtual environments, and Kaggle
 credentials are deliberately not in the source archive.

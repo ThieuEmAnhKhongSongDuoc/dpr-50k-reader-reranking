@@ -95,13 +95,42 @@
     "reason": "Earlier run joined bare Lucene IDs to wiki:-prefixed DPR IDs without normalization. The corrected rerun normalizes IDs and is recorded under bm25_dpr_fusion.json."
   },
   "feedback_status": {
-    "status": "draft; Reader feedback runs pending Kaggle execution",
+    "status": "Reader K=100 FP16 runs complete; final author contributions pending verified member roles",
     "corrected_curatedtrec_regex": true,
     "hybrid_full_test_complete": true,
     "hybrid_per_query_rows": 28219,
-    "reader_fp16_curatedtrec_and_triviaqa": "pending",
-    "triviaqa_development_budget_selection": "pending",
-    "triviaqa_reader_span_exact_match": "pending",
+    "reader_fp16_curatedtrec_and_triviaqa": "complete; 694 CuratedTREC, 8,837 TriviaQA dev, 11,313 TriviaQA test",
+    "triviaqa_development_budget_selection": "TriviaQA dev was run before test at fixed K=100; no alternative-K sweep was run, so empirical selection among K values is not claimed",
+    "triviaqa_reader_span_exact_match": {
+      "dev": "1105/8837 = 12.50%",
+      "test": "1419/11313 = 12.54%"
+    },
     "author_contributions": "awaiting verified roles for all five members"
+  },
+  "reader_outputs": {
+    "curatedtrec_reader_regex_k100_fp16.json": {
+      "bytes": 1426,
+      "sha256": "1631e535a1c6143036c551344918e6a0f42872aef15c73d1fcf0904ec5757651"
+    },
+    "trivia_dev_reader_k100_fp16.json": {
+      "bytes": 1430,
+      "sha256": "c0c1e712748cc66f28a5365d4d6e242f34526c4f7cf0c772aaa3a0214bc207bf"
+    },
+    "trivia_reader_k100_fp16.json": {
+      "bytes": 1431,
+      "sha256": "40ce525401c41f52bd5d7ef2da1507f4e6fb69180199933bf6852b1257ccc68c"
+    },
+    "per_query/curatedtrec_reader_regex_k100_fp16.jsonl.gz": {
+      "bytes": 1001644,
+      "sha256": "590043638adf1f987c66c7c5dfc7256b90433aa4e971ab6d90c6432a7643112d"
+    },
+    "per_query/trivia_dev_reader_k100_fp16.jsonl.gz": {
+      "bytes": 13792006,
+      "sha256": "1369c26715917392e3540736f9c2a031bc29ae44b419b2bb303c1202793d0eb2"
+    },
+    "per_query/trivia_reader_k100_fp16.jsonl.gz": {
+      "bytes": 17655708,
+      "sha256": "3dd39d420117ab61dcad3ebf16e4fc0b8c8885fbb75ffb298c2e83f85e029499"
+    }
   }
 }

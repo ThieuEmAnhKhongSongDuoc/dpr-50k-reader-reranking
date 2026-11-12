@@ -8,7 +8,7 @@ Department of Artificial Intelligence, FPT University, Da Nang, Vietnam.
 
 ## Version 2 feedback status
 
-The submitted PDF in `paper/group5-dpr-paper.pdf` is the Version 1 copy. Version 2 corrects CuratedTREC answer matching, repairs BM25+DPR passage-ID joining, and adds per-query fusion results. Reader FP16 feedback runs are still pending Kaggle execution, so the old Reader results are not presented here as corrected final results.
+The submitted PDF in `paper/group5-dpr-paper.pdf` is the Version 1 copy. Version 2 corrects CuratedTREC answer matching, repairs BM25+DPR passage-ID joining, adds per-query fusion results, and reports the completed FP16 Reader runs. The editable Version 2 LaTeX source contains the updated Reader results and tables; its PDF must be freshly compiled before submission.
 
 ## Corrected full-test baselines
 
@@ -34,11 +34,12 @@ The local hybrid retrieves up to 2,000 candidates per retriever, normalizes pass
 | Sampling, evaluation, fusion and Reader code | `scripts/` |
 | Corrected TREC and five-test fusion summaries | `results/v2_feedback/` |
 | Per-question BM25+DPR candidates and scores | `results/v2_feedback/bm25_dpr_fusion_per_query.jsonl.gz` |
+| FP16 Reader summaries and per-question outputs | `results/v2_feedback/` and `results/v2_feedback/per_query/` |
 | Kaggle Reader feedback run instructions | `docs/KAGGLE_VERSION2_RUN_GUIDE.md` |
 | Version 1 paper PDF | `paper/group5-dpr-paper.pdf` |
 | Editable Version 2 feedback draft (LaTeX source and verified tables) | `paper/v2_feedback_source/` |
 | Model/data artifact manifest | `weights/manifest.json` |
 
-The v2 Reader reruns will use FP16 on Kaggle T4 x2. TriviaQA's candidate budget is selected on its dev split; the full test is reserved for evaluation. The required TriviaQA Reader run also reports Exact Match from the Reader span head. Corrected CuratedTREC Reader metrics and final author contributions will be added after the Kaggle outputs and verified member roles are available.
+Reader reruns used FP16 on Kaggle T4 x2 and K=100. TriviaQA development was run before the held-out test; K=100 was the fixed requested budget, and this repository does not claim an alternative-K sweep. Reader span Exact Match is reported for TriviaQA. Corrected CuratedTREC Reader metrics are included. The Author Contributions section still needs verified roles from all five members.
 
 Large datasets and checkpoints are not stored in this repository. See `docs/REPRODUCE.md` for resource identifiers and setup. Upstream DPR code and third-party resources retain their original licenses.

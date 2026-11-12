@@ -26,7 +26,7 @@ For a question $q$, exact DPR search produces a candidate set
 \begin{equation}
 \mathcal{C}_K(q)=\operatorname{TopK}_{p\in\mathcal{P}}s_D(q,p).
 \end{equation}
-The primary reranking experiment uses $K=200$. Each returned passage ID retrieves the title and body from the fixed corpus. The Reader input is constructed as
+The feedback reranking run uses $K=100$, the candidate budget explicitly requested by the instructor. Each returned passage ID retrieves the title and body from the fixed corpus. The Reader input is constructed as
 \begin{equation}
 \texttt{[CLS]}\ q\ \texttt{[SEP]}\ t_p\ \texttt{[SEP]}\ p.
 \end{equation}
@@ -49,7 +49,7 @@ The reranked list sorts $\mathcal{C}_K(q)$ by $s_R$. We use raw relevance logits
 
 We use the official \texttt{nq-trivia-hybrid} Reader checkpoint; its full resource identifier is recorded in the artifact manifest. The registry describes it as a reader trained using Trivia multi-hybrid retrieval results~\cite{dprcode}. This provenance motivates a possible dataset-alignment explanation, but does not establish how much of a measured gain is caused by training-domain alignment.
 
-Reader evaluation uses \path{torch.inference_mode}. A batch contains 16 candidate pairs, represented as $[16,1,350]$ before the Reader flattens its first two axes. DataParallel divides the first axis across two T4 GPUs. Each pair is scored independently; there is no cross-passage attention between the 200 candidates. No parameters are updated, and the existing DPR passage vectors are reused.
+Reader evaluation uses \path{torch.inference_mode}. A batch contains 16 candidate pairs, represented as $[16,1,350]$ before the Reader flattens its first two axes. DataParallel divides the first axis across two T4 GPUs. Each pair is scored independently; there is no cross-passage attention between the 100 candidates. No parameters are updated, and the existing DPR passage vectors are reused.
 
 \subsection{Lexical Reference}
 The BM25 reference is a standalone Java runner using Lucene 8.11.2, \texttt{EnglishAnalyzer}, and \texttt{BM25Similarity} with $k_1=0.9$ and $b=0.4$. It indexes article title and passage body together, while answer matching uses body text only. This is a Lucene reference, not the exact software deployment of the original paper.
