@@ -1,0 +1,25 @@
+{
+  "source_archive": {
+    "filename": "crossencoder_results.zip",
+    "bytes": 61077296,
+    "sha256": "ca2460269884b5e644f18e5f2e5a8e63a32f6de87eb3c49f80ae24d2cf5ab54e"
+  },
+  "files": {
+    "cross_encoder_summary.json": {
+      "bytes": 4339,
+      "sha256": "d7751b40b362062e2a3d3c2e65c3e8d04cc146c723aa89555544e392d42fbfab"
+    },
+    "per_query/curatedtrec_test_cross_encoder_per_query.jsonl.gz": {
+      "bytes": 1956327,
+      "sha256": "fc44b3d39adc1d44de14ee13edfb5ba82a43c85bf268d518f6c4746c2fbc15c1"
+    },
+    "per_query/trivia_dev_cross_encoder_per_query.jsonl.gz": {
+      "bytes": 25919102,
+      "sha256": "14ec78b6c2b7c4123e4375713d40ec13e405b8cf20f4ada764ea975a5eb38b19"
+    },
+    "per_query/trivia_test_cross_encoder_per_query.jsonl.gz": {
+      "bytes": 33181685,
+      "sha256": "f0be66f2c0238b2061fd72259d1d891845b930f35e48ae75f35f6e3930ee56e3"
+    }
+  }
+}

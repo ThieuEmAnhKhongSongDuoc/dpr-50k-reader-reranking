@@ -1,0 +1,164 @@
+{
+  "model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+  "results": [
+    {
+      "dataset": "trivia_dev",
+      "questions": 8837,
+      "candidate_k": 100,
+      "model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+      "precision": "FP32 inference",
+      "max_length": 512,
+      "batch_size": 64,
+      "gpu_count": 2,
+      "matching": "saved DPR answer_hit labels; CuratedTREC source labels are regex based",
+      "hit_counts": {
+        "dpr": {
+          "1": 842,
+          "5": 1863,
+          "20": 3021,
+          "100": 4279
+        },
+        "reader": {
+          "1": 1632,
+          "5": 2773,
+          "20": 3681,
+          "100": 4279
+        },
+        "cross_encoder": {
+          "1": 966,
+          "5": 1891,
+          "20": 3051,
+          "100": 4279
+        }
+      },
+      "hit_at_k": {
+        "dpr": {
+          "1": 0.09528120402851646,
+          "5": 0.21081815095620685,
+          "20": 0.3418580966391309,
+          "100": 0.48421409980762703
+        },
+        "reader": {
+          "1": 0.18467805816453547,
+          "5": 0.3137942740749123,
+          "20": 0.4165440760439063,
+          "100": 0.48421409980762703
+        },
+        "cross_encoder": {
+          "1": 0.10931311531062578,
+          "5": 0.21398664705216702,
+          "20": 0.34525291388480256,
+          "100": 0.48421409980762703
+        }
+      },
+      "per_query_file": "/kaggle/working/crossencoder_results/trivia_dev_cross_encoder_per_query.jsonl.gz",
+      "seconds": 1193.19
+    },
+    {
+      "dataset": "curatedtrec_test",
+      "questions": 694,
+      "candidate_k": 100,
+      "model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+      "precision": "FP32 inference",
+      "max_length": 512,
+      "batch_size": 64,
+      "gpu_count": 2,
+      "matching": "saved DPR answer_hit labels; CuratedTREC source labels are regex based",
+      "hit_counts": {
+        "dpr": {
+          "1": 114,
+          "5": 240,
+          "20": 355,
+          "100": 472
+        },
+        "reader": {
+          "1": 179,
+          "5": 282,
+          "20": 386,
+          "100": 472
+        },
+        "cross_encoder": {
+          "1": 118,
+          "5": 256,
+          "20": 366,
+          "100": 472
+        }
+      },
+      "hit_at_k": {
+        "dpr": {
+          "1": 0.1642651296829971,
+          "5": 0.345821325648415,
+          "20": 0.5115273775216138,
+          "100": 0.6801152737752162
+        },
+        "reader": {
+          "1": 0.2579250720461095,
+          "5": 0.40634005763688763,
+          "20": 0.5561959654178674,
+          "100": 0.6801152737752162
+        },
+        "cross_encoder": {
+          "1": 0.17002881844380405,
+          "5": 0.3688760806916426,
+          "20": 0.5273775216138329,
+          "100": 0.6801152737752162
+        }
+      },
+      "per_query_file": "/kaggle/working/crossencoder_results/curatedtrec_test_cross_encoder_per_query.jsonl.gz",
+      "seconds": 86.93
+    },
+    {
+      "dataset": "trivia_test",
+      "questions": 11313,
+      "candidate_k": 100,
+      "model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+      "precision": "FP32 inference",
+      "max_length": 512,
+      "batch_size": 64,
+      "gpu_count": 2,
+      "matching": "saved DPR answer_hit labels; CuratedTREC source labels are regex based",
+      "hit_counts": {
+        "dpr": {
+          "1": 1108,
+          "5": 2353,
+          "20": 3804,
+          "100": 5437
+        },
+        "reader": {
+          "1": 2046,
+          "5": 3458,
+          "20": 4678,
+          "100": 5437
+        },
+        "cross_encoder": {
+          "1": 1219,
+          "5": 2436,
+          "20": 3834,
+          "100": 5437
+        }
+      },
+      "hit_at_k": {
+        "dpr": {
+          "1": 0.09794042252276143,
+          "5": 0.2079908070361531,
+          "20": 0.3362503314770618,
+          "100": 0.4805975426500486
+        },
+        "reader": {
+          "1": 0.18085388491116414,
+          "5": 0.30566604790948465,
+          "20": 0.4135065853442942,
+          "100": 0.4805975426500486
+        },
+        "cross_encoder": {
+          "1": 0.10775214355166622,
+          "5": 0.21532749933704587,
+          "20": 0.33890214797136037,
+          "100": 0.4805975426500486
+        }
+      },
+      "per_query_file": "/kaggle/working/crossencoder_results/trivia_test_cross_encoder_per_query.jsonl.gz",
+      "seconds": 1526.28
+    }
+  ]
+}

@@ -1,17 +1,24 @@
 \begin{table*}[t]
-\caption{Answer-containing-passage results before and after Reader reranking at $K=100$.}
+\caption{Answer-containing-passage results for the same 100 DPR candidates under DPR, cross-encoder, and Reader rankings.}
 \label{tab:reranking}
 \centering
-\small
+\footnotesize
 \begin{tabular}{llrrrr}
 \toprule
-Test & Method & Hit@1 & Hit@5 & Hit@20 & Hit@100 \\
+Dataset/split & Ranking & Hit@1 & Hit@5 & Hit@20 & Hit@100 \\
 \midrule
-CuratedTREC & DPR Multi & 16.43 (114) & 34.58 (240) & 51.15 (355) & 68.01 (472) \\
- & Reader, $K=100$ & 25.79 (179) & 40.63 (282) & 55.62 (386) & 68.01 (472) \\
+CuratedTREC test & DPR order & 16.43 (114) & 34.58 (240) & 51.15 (355) & 68.01 (472) \\
+ & Cross-encoder & 17.00 (118) & 36.89 (256) & 52.74 (366) & 68.01 (472) \\
+ & DPR Reader & 25.79 (179) & 40.63 (282) & 55.62 (386) & 68.01 (472) \\
 \midrule
-TriviaQA & DPR Multi & 9.81 (1,110) & 20.77 (2,350) & 33.60 (3,801) & 48.04 (5,435) \\
- & Reader, $K=100$ & 18.09 (2,046) & 30.57 (3,458) & 41.35 (4,678) & 48.06 (5,437) \\
+TriviaQA dev & DPR order & 9.53 (842) & 21.08 (1,863) & 34.19 (3,021) & 48.42 (4,279) \\
+ & Cross-encoder & 10.93 (966) & 21.40 (1,891) & 34.53 (3,051) & 48.42 (4,279) \\
+ & DPR Reader & 18.47 (1,632) & 31.38 (2,773) & 41.65 (3,681) & 48.42 (4,279) \\
+\midrule
+TriviaQA test & DPR order & 9.79 (1,108) & 20.80 (2,353) & 33.63 (3,804) & 48.06 (5,437) \\
+ & Cross-encoder & 10.78 (1,219) & 21.53 (2,436) & 33.89 (3,834) & 48.06 (5,437) \\
+ & DPR Reader & 18.09 (2,046) & 30.57 (3,458) & 41.35 (4,678) & 48.06 (5,437) \\
 \bottomrule
 \end{tabular}
+\vspace{1mm}\par\footnotesize The TriviaQA test DPR-order values are recomputed from the saved candidate records for a paired comparison; the independent full-test aggregate differs slightly. All three rankings in this table use the same 100 candidate IDs and saved answer-hit labels.
 \end{table*}

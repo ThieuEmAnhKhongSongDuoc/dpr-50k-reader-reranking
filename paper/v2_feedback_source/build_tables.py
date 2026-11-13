@@ -3,6 +3,7 @@
 import gzip
 import json
 import math
+from itertools import zip_longest
 from pathlib import Path
 
 
@@ -164,6 +165,18 @@ per_query_inputs = {
     "curatedtrec": DATA / "per_query" / "curatedtrec_reader_regex_k100_fp16.jsonl.gz",
     "trivia": DATA / "per_query" / "trivia_reader_k100_fp16.jsonl.gz",
 }
+cross_encoder_summary_path = DATA / "cross_encoder_summary.json"
+cross_encoder_per_query_dir = (
+    ROOT.parents[1] / "results" / "v2_feedback" / "cross_encoder" / "per_query"
+)
+cross_encoder_per_query_inputs = {
+    "trivia_dev": cross_encoder_per_query_dir
+    / "trivia_dev_cross_encoder_per_query.jsonl.gz",
+    "curatedtrec_test": cross_encoder_per_query_dir
+    / "curatedtrec_test_cross_encoder_per_query.jsonl.gz",
+    "trivia_test": cross_encoder_per_query_dir
+    / "trivia_test_cross_encoder_per_query.jsonl.gz",
+}
 
 
 def validate_per_query(path, expected_questions, expected_match_type):
@@ -181,8 +194,62 @@ def validate_per_query(path, expected_questions, expected_match_type):
     assert seen == expected_questions, (path, seen, expected_questions)
 
 
-if all(path.is_file() for path in reader_inputs.values()) and all(
-    path.is_file() for path in per_query_inputs.values()
+def validate_shared_crossencoder(path, reader_path, expected_questions,
+                                 expected_match_type, expected_summary):
+    """Check that CE and Reader records contain identical candidates and labels."""
+    seen = 0
+    aggregate = {
+        method: {str(k): 0 for k in (1, 5, 20, 100)}
+        for method in ("dpr", "reader", "cross_encoder")
+    }
+    with gzip.open(path, "rt", encoding="utf-8") as ce_stream, gzip.open(
+        reader_path, "rt", encoding="utf-8"
+    ) as reader_stream:
+        for ce_line, reader_line in zip_longest(ce_stream, reader_stream):
+            assert ce_line is not None and reader_line is not None, path
+            ce_row = json.loads(ce_line)
+            reader_row = json.loads(reader_line)
+            assert str(ce_row["query_id"]) == str(reader_row["query_id"])
+            assert ce_row["candidate_k"] == 100
+            assert ce_row["match_type"] == expected_match_type
+            assert len(ce_row["candidates"]) == 100
+            assert len(reader_row["candidates"]) == 100
+            reader_by_id = {
+                str(candidate["passage_id"]): candidate
+                for candidate in reader_row["candidates"]
+            }
+            ce_by_id = {
+                str(candidate["passage_id"]): candidate
+                for candidate in ce_row["candidates"]
+            }
+            assert len(reader_by_id) == len(ce_by_id) == 100
+            assert set(reader_by_id) == set(ce_by_id)
+            ce_ranks = []
+            for passage_id, candidate in ce_by_id.items():
+                source = reader_by_id[passage_id]
+                assert bool(candidate["answer_hit"]) == bool(source["answer_hit"])
+                assert candidate["retriever_rank"] == source["retriever_rank"]
+                assert candidate["rank"] == source["rank"]
+                assert candidate["reader_relevance_score"] == source[
+                    "reader_relevance_score"
+                ]
+                assert math.isfinite(float(candidate["cross_encoder_score"]))
+                ce_ranks.append(candidate["cross_encoder_rank"])
+            assert sorted(ce_ranks) == list(range(1, 101))
+            for method, values in ce_row["ranking_metrics"].items():
+                assert method in aggregate
+                for cutoff, hit in values["hits"].items():
+                    aggregate[method][cutoff] += int(hit)
+            seen += 1
+    assert seen == expected_questions, (path, seen, expected_questions)
+    assert aggregate == expected_summary["hit_counts"], (path, aggregate)
+
+
+if (
+    all(path.is_file() for path in reader_inputs.values())
+    and all(path.is_file() for path in per_query_inputs.values())
+    and cross_encoder_summary_path.is_file()
+    and all(path.is_file() for path in cross_encoder_per_query_inputs.values())
 ):
     dev = read(reader_inputs["dev"].name)["test_results"]["trivia_dev"]
     trec_reader = read(reader_inputs["curatedtrec"].name)["test_results"][
@@ -207,6 +274,29 @@ if all(path.is_file() for path in reader_inputs.values()) and all(
     )
     validate_per_query(per_query_inputs["trivia"], trivia_reader["questions"], "string")
 
+    cross_summary = read(cross_encoder_summary_path.name)
+    assert cross_summary["model"] == "cross-encoder/ms-marco-MiniLM-L6-v2"
+    cross_runs = {row["dataset"]: row for row in cross_summary["results"]}
+    for dataset, reader_key, expected_type in [
+        ("curatedtrec_test", "curatedtrec", "regex"),
+        ("trivia_dev", "dev", "string"),
+        ("trivia_test", "trivia", "string"),
+    ]:
+        run = cross_runs[dataset]
+        assert run["candidate_k"] == 100
+        assert run["questions"] == read(reader_inputs[reader_key].name)[
+            "test_results"
+        ][{"dev": "trivia_dev", "curatedtrec": "curatedtrec_test", "trivia": "trivia_test"}[reader_key]]["questions"]
+        assert run["precision"] == "FP32 inference"
+        assert run["matching"].startswith("saved DPR answer_hit labels")
+        validate_shared_crossencoder(
+            cross_encoder_per_query_inputs[dataset],
+            per_query_inputs[reader_key],
+            run["questions"],
+            expected_type,
+            run,
+        )
+
     readers = {"curatedtrec": trec_reader, "trivia": trivia_reader}
     for dataset, row in readers.items():
         validate_result(row)
@@ -215,35 +305,61 @@ if all(path.is_file() for path in reader_inputs.values()) and all(
             for count in row["hits"].values()
         )
 
+    run_labels = {
+        "curatedtrec_test": "CuratedTREC test",
+        "trivia_dev": "TriviaQA dev",
+        "trivia_test": "TriviaQA test",
+    }
+    method_labels = {
+        "dpr": "DPR order",
+        "cross_encoder": "Cross-encoder",
+        "reader": "DPR Reader",
+    }
     rerank_rows = []
-    for index, dataset in enumerate(("curatedtrec", "trivia")):
-        for method, row in [
-            ("DPR Multi", dpr_result(multi, dataset)),
-            ("Reader, $K=100$", readers[dataset]),
-        ]:
+    for index, dataset in enumerate(
+        ("curatedtrec_test", "trivia_dev", "trivia_test")
+    ):
+        run = cross_runs[dataset]
+        for method in ("dpr", "cross_encoder", "reader"):
+            counts = run["hit_counts"][method]
             hits = " & ".join(
-                f"{pct(row, cutoff)} ({row['hits'][str(cutoff)]:,})"
+                f"{100 * counts[str(cutoff)] / run['questions']:.2f} "
+                f"({counts[str(cutoff)]:,})"
                 for cutoff in (1, 5, 20, 100)
             )
-            label = LABELS[dataset] if method == "DPR Multi" else ""
-            rerank_rows.append(f"{label} & {method} & {hits} " + r"\\")
-        if index == 0:
+            label = run_labels[dataset] if method == "dpr" else ""
+            rerank_rows.append(
+                f"{label} & {method_labels[method]} & {hits} " + r"\\"
+            )
+        if index < 2:
             rerank_rows.append(r"\midrule")
+
+    paired_trivia_test = cross_runs["trivia_test"]["hit_counts"]["dpr"]
+    independent_trivia_test = dpr_result(multi, "trivia")["hits"]
+    discrepancy_note = ""
+    if paired_trivia_test != independent_trivia_test:
+        discrepancy_note = (
+            r"\vspace{1mm}\par\footnotesize The TriviaQA test DPR-order values "
+            r"are recomputed from the saved candidate records for a paired comparison; "
+            r"the independent full-test aggregate differs slightly. All three rankings "
+            r"in this table use the same 100 candidate IDs and saved answer-hit labels."
+        )
     write_table(
         "reranking.tex",
         [
             r"\begin{table*}[t]",
-            r"\caption{Answer-containing-passage results before and after Reader reranking at $K=100$.}",
+            r"\caption{Answer-containing-passage results for the same 100 DPR candidates under DPR, cross-encoder, and Reader rankings.}",
             r"\label{tab:reranking}",
             r"\centering",
-            r"\small",
+            r"\footnotesize",
             r"\begin{tabular}{llrrrr}",
             r"\toprule",
-            r"Test & Method & Hit@1 & Hit@5 & Hit@20 & Hit@100 \\",
+            r"Dataset/split & Ranking & Hit@1 & Hit@5 & Hit@20 & Hit@100 \\",
             r"\midrule",
             *rerank_rows,
             r"\bottomrule",
             r"\end{tabular}",
+            discrepancy_note,
             r"\end{table*}",
         ],
     )
@@ -269,7 +385,10 @@ if all(path.is_file() for path in reader_inputs.values()) and all(
             r"\end{table}",
         ],
     )
-    print("Reader tables written from complete K=100 FP16 dev/test outputs.")
+    print(
+        "Reader and cross-encoder tables written after verifying identical "
+        "100-candidate IDs and answer-hit labels."
+    )
 else:
     # Never let a stale table survive after the run inputs are absent.
     for generated in ("reranking.tex", "span_em.tex"):
@@ -278,11 +397,16 @@ else:
             stale_path.unlink()
     absent = [
         str(path.relative_to(ROOT))
-        for path in [*reader_inputs.values(), *per_query_inputs.values()]
+        for path in [
+            *reader_inputs.values(),
+            *per_query_inputs.values(),
+            cross_encoder_summary_path,
+            *cross_encoder_per_query_inputs.values(),
+        ]
         if not path.is_file()
     ]
     print(
-        "Reader tables not regenerated; required Kaggle files missing: "
+        "Reader/cross-encoder tables not regenerated; required outputs missing: "
         + ", ".join(absent)
     )
 

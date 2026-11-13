@@ -51,6 +51,9 @@ We use the official \texttt{nq-trivia-hybrid} Reader checkpoint; its full resour
 
 Reader evaluation uses \path{torch.inference_mode}. A batch contains 16 candidate pairs, represented as $[16,1,350]$ before the Reader flattens its first two axes. DataParallel divides the first axis across two T4 GPUs. Each pair is scored independently; there is no cross-passage attention between the 100 candidates. No parameters are updated, and the existing DPR passage vectors are reused.
 
+\subsection{MS MARCO Cross-Encoder Reranking}
+As a second-stage comparison, we use the released \texttt{cross-encoder/ms-marco-MiniLM-L6-v2} checkpoint in inference mode. For each question, it jointly tokenizes the question and each candidate's concatenated passage title and text, then produces one scalar relevance logit. Candidates are sorted by that logit in descending order. The model receives no answer strings, generates no answer span, and is not fine-tuned. It scores exactly the same saved 100 passage IDs used by DPR and the official Reader. Tokenization truncates each pair to 512 tokens; inference uses FP32 and batches of 64 pairs on two Kaggle Tesla T4 GPUs. DPR order is reconstructed from each candidate's saved \texttt{retriever\_rank}; Reader order uses its saved relevance rank. All three rankings use the same saved answer-hit labels, including DPR's regex-based labels for CuratedTREC.
+
 \subsection{Lexical Reference}
 The BM25 reference is a standalone Java runner using Lucene 8.11.2, \texttt{EnglishAnalyzer}, and \texttt{BM25Similarity} with $k_1=0.9$ and $b=0.4$. It indexes article title and passage body together, while answer matching uses body text only. This is a Lucene reference, not the exact software deployment of the original paper.
 

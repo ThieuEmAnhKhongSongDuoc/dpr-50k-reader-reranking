@@ -8,7 +8,7 @@ Department of Artificial Intelligence, FPT University, Da Nang, Vietnam.
 
 ## Version 2 feedback status
 
-The submitted PDF in `paper/group5-dpr-paper.pdf` is the Version 1 copy. Version 2 corrects CuratedTREC answer matching, repairs BM25+DPR passage-ID joining, adds per-query fusion results, and reports the completed FP16 Reader runs. The editable Version 2 LaTeX source contains the updated Reader results and tables; its PDF must be freshly compiled before submission.
+The submitted PDF in `paper/group5-dpr-paper.pdf` is the Version 1 copy. Version 2 corrects CuratedTREC answer matching, repairs BM25+DPR passage-ID joining, adds per-query fusion results, and reports the completed FP16 Reader runs. The Version 2 source now also compares a frozen MS MARCO cross-encoder against DPR and Reader rankings on the same saved candidate IDs. Its PDF must be freshly compiled before submission.
 
 ## Corrected full-test baselines
 
@@ -40,6 +40,6 @@ The local hybrid retrieves up to 2,000 candidates per retriever, normalizes pass
 | Editable Version 2 feedback draft (LaTeX source and verified tables) | `paper/v2_feedback_source/` |
 | Model/data artifact manifest | `weights/manifest.json` |
 
-Reader reruns used FP16 on Kaggle T4 x2 and K=100. TriviaQA development was run before the held-out test; K=100 was the fixed requested budget, and this repository does not claim an alternative-K sweep. Reader span Exact Match is reported for TriviaQA. Corrected CuratedTREC Reader metrics are included. The LaTeX draft now proposes author contributions covering Versions 1 and 2; all five authors should confirm their roles before final submission.
+Reader reruns used FP16 on Kaggle T4 x2 and K=100. TriviaQA development was run before the held-out test; K=100 was the fixed requested budget, and this repository does not claim an alternative-K sweep. Reader span Exact Match is reported for TriviaQA. Corrected CuratedTREC Reader metrics are included. A frozen `cross-encoder/ms-marco-MiniLM-L6-v2` was evaluated in FP32 on the same 100 passage IDs for TriviaQA dev/test and CuratedTREC test; per-query candidate IDs, original DPR ranks, Reader scores, cross-encoder logits/ranks, and answer-hit labels are in `results/v2_feedback/cross_encoder/`. The LaTeX draft includes this comparison and credits Hồ Thành Tài with the cross-encoder work. The author roles should be confirmed by all five authors before final submission.
 
 Large datasets and checkpoints are not stored in this repository. See `docs/REPRODUCE.md` for resource identifiers and setup. Upstream DPR code and third-party resources retain their original licenses.

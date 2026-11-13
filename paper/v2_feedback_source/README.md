@@ -60,9 +60,22 @@ names and SHA256 hashes, the sampled corpus digest, and resource identifiers.
   JSONL.GZ files are stored under `results/v2_feedback/per_query/`.
   `python build_tables.py` regenerates the reranking and span-EM tables without
   running inference.
-- The compiled Version 2 PDF is included as `../group5-dpr-paper-v2.pdf`.
-  The Version 1 PDF remains at `../group5-dpr-paper.pdf`. Rebuild from
-  `main.tex` after any future source changes.
+- A frozen `cross-encoder/ms-marco-MiniLM-L6-v2` comparison uses the same saved
+  100 candidate IDs as the DPR and Reader rankings on TriviaQA dev/test and
+  CuratedTREC test. It runs in FP32 with max length 512, batch size 64, and two
+  Kaggle T4 GPUs. The aggregate summary is in `data/cross_encoder_summary.json`;
+  complete per-query logits, ranks, candidate IDs, and answer-hit labels are in
+  `../../results/v2_feedback/cross_encoder/per_query/`.
+- The table builder checks every cross-encoder query against its saved Reader
+  row, including identical candidate IDs, answer-hit labels, and existing DPR
+  and Reader ranks/scores, then verifies the aggregate Hit@k counts before
+  writing the three-way comparison table.
+- `../group5-dpr-paper-v2.pdf` is the pre-cross-encoder Version 2 PDF snapshot;
+  it is not synchronized with the updated LaTeX source in this branch. The
+  current environment has no XeLaTeX, pdfLaTeX, latexmk, or Tectonic binary, so
+  the updated source has not been compiled here. Recompile `main.tex` with
+  XeLaTeX in Overleaf before submitting. The Version 1 PDF remains at
+  `../group5-dpr-paper.pdf`.
 
 The large corpus, models, API tokens, virtual environments, and Kaggle
 credentials are deliberately not in the source archive.

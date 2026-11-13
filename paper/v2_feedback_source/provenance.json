@@ -105,7 +105,8 @@
       "dev": "1105/8837 = 12.50%",
       "test": "1419/11313 = 12.54%"
     },
-    "author_contributions": "included for all five members in the Version 2 manuscript"
+    "author_contributions": "included for all five members in the Version 2 manuscript",
+    "cross_encoder_comparison": "complete; frozen MS MARCO cross-encoder evaluated on identical K=100 candidate IDs for TriviaQA dev/test and CuratedTREC test; per-query IDs and scores archived"
   },
   "reader_outputs": {
     "curatedtrec_reader_regex_k100_fp16.json": {
@@ -131,6 +132,176 @@
     "per_query/trivia_reader_k100_fp16.jsonl.gz": {
       "bytes": 17655708,
       "sha256": "3dd39d420117ab61dcad3ebf16e4fc0b8c8885fbb75ffb298c2e83f85e029499"
+    }
+  },
+  "cross_encoder_comparison": {
+    "model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+    "checkpoint": "pretrained MS MARCO model; inference only; no fine-tuning",
+    "candidate_k": 100,
+    "datasets": {
+      "trivia_dev": {
+        "questions": 8837,
+        "hit_counts": {
+          "dpr": {
+            "1": 842,
+            "5": 1863,
+            "20": 3021,
+            "100": 4279
+          },
+          "reader": {
+            "1": 1632,
+            "5": 2773,
+            "20": 3681,
+            "100": 4279
+          },
+          "cross_encoder": {
+            "1": 966,
+            "5": 1891,
+            "20": 3051,
+            "100": 4279
+          }
+        },
+        "hit_at_k": {
+          "dpr": {
+            "1": 0.09528120402851646,
+            "5": 0.21081815095620685,
+            "20": 0.3418580966391309,
+            "100": 0.48421409980762703
+          },
+          "reader": {
+            "1": 0.18467805816453547,
+            "5": 0.3137942740749123,
+            "20": 0.4165440760439063,
+            "100": 0.48421409980762703
+          },
+          "cross_encoder": {
+            "1": 0.10931311531062578,
+            "5": 0.21398664705216702,
+            "20": 0.34525291388480256,
+            "100": 0.48421409980762703
+          }
+        },
+        "runtime_seconds": 1193.19
+      },
+      "curatedtrec_test": {
+        "questions": 694,
+        "hit_counts": {
+          "dpr": {
+            "1": 114,
+            "5": 240,
+            "20": 355,
+            "100": 472
+          },
+          "reader": {
+            "1": 179,
+            "5": 282,
+            "20": 386,
+            "100": 472
+          },
+          "cross_encoder": {
+            "1": 118,
+            "5": 256,
+            "20": 366,
+            "100": 472
+          }
+        },
+        "hit_at_k": {
+          "dpr": {
+            "1": 0.1642651296829971,
+            "5": 0.345821325648415,
+            "20": 0.5115273775216138,
+            "100": 0.6801152737752162
+          },
+          "reader": {
+            "1": 0.2579250720461095,
+            "5": 0.40634005763688763,
+            "20": 0.5561959654178674,
+            "100": 0.6801152737752162
+          },
+          "cross_encoder": {
+            "1": 0.17002881844380405,
+            "5": 0.3688760806916426,
+            "20": 0.5273775216138329,
+            "100": 0.6801152737752162
+          }
+        },
+        "runtime_seconds": 86.93
+      },
+      "trivia_test": {
+        "questions": 11313,
+        "hit_counts": {
+          "dpr": {
+            "1": 1108,
+            "5": 2353,
+            "20": 3804,
+            "100": 5437
+          },
+          "reader": {
+            "1": 2046,
+            "5": 3458,
+            "20": 4678,
+            "100": 5437
+          },
+          "cross_encoder": {
+            "1": 1219,
+            "5": 2436,
+            "20": 3834,
+            "100": 5437
+          }
+        },
+        "hit_at_k": {
+          "dpr": {
+            "1": 0.09794042252276143,
+            "5": 0.2079908070361531,
+            "20": 0.3362503314770618,
+            "100": 0.4805975426500486
+          },
+          "reader": {
+            "1": 0.18085388491116414,
+            "5": 0.30566604790948465,
+            "20": 0.4135065853442942,
+            "100": 0.4805975426500486
+          },
+          "cross_encoder": {
+            "1": 0.10775214355166622,
+            "5": 0.21532749933704587,
+            "20": 0.33890214797136037,
+            "100": 0.4805975426500486
+          }
+        },
+        "runtime_seconds": 1526.28
+      }
+    },
+    "settings": {
+      "precision": "FP32",
+      "max_length": 512,
+      "batch_size": 64,
+      "gpus": "2 x NVIDIA Tesla T4"
+    },
+    "shared_candidate_verification": "Matched every query against the official Reader output: same 100 candidate passage IDs, answer_hit labels, retriever_rank, Reader rank, and Reader relevance score.",
+    "curatedtrec_match_type": "regex",
+    "source_archive": {
+      "filename": "crossencoder_results.zip",
+      "bytes": 61077296,
+      "sha256": "ca2460269884b5e644f18e5f2e5a8e63a32f6de87eb3c49f80ae24d2cf5ab54e"
+    },
+    "files": {
+      "cross_encoder_summary.json": {
+        "bytes": 4339,
+        "sha256": "d7751b40b362062e2a3d3c2e65c3e8d04cc146c723aa89555544e392d42fbfab"
+      },
+      "per_query/curatedtrec_test_cross_encoder_per_query.jsonl.gz": {
+        "bytes": 1956327,
+        "sha256": "fc44b3d39adc1d44de14ee13edfb5ba82a43c85bf268d518f6c4746c2fbc15c1"
+      },
+      "per_query/trivia_dev_cross_encoder_per_query.jsonl.gz": {
+        "bytes": 25919102,
+        "sha256": "14ec78b6c2b7c4123e4375713d40ec13e405b8cf20f4ada764ea975a5eb38b19"
+      },
+      "per_query/trivia_test_cross_encoder_per_query.jsonl.gz": {
+        "bytes": 33181685,
+        "sha256": "f0be66f2c0238b2061fd72259d1d891845b930f35e48ae75f35f6e3930ee56e3"
+      }
     }
   }
 }
